@@ -89,5 +89,5 @@ FashOJ
 ├── config.yaml           # 全局配置
 ├── README.md             # 项目介绍
 ├── LICENSE               # 开源协议
-└── .gitignore            # Git忽略文件
+└── .gitignore            
 ```
