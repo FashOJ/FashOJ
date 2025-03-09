@@ -1,3 +1,6 @@
+# FashOJ
+---
+```
 FashOJ
 ├── backend                # 后端服务（Golang）
 │   ├── cmd               # 入口文件
@@ -87,3 +90,4 @@ FashOJ
 ├── README.md             # 项目介绍
 ├── LICENSE               # 开源协议
 └── .gitignore            # Git忽略文件
+```
