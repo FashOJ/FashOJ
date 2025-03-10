@@ -1,0 +1,28 @@
+name: Greetings
+
+on: [pull_request_target, issues]
+
+jobs:
+  greeting:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+    steps:
+    - uses: actions/first-interaction@v1
+      with:
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
+        issue-message: |
+  欢迎提交 issue！🎉
+  为了帮助我们更好地解决问题，请确保：
+  - 描述清晰的问题背景
+  - 提供复现步骤
+  - 如果有错误日志，请附上
+  我们会尽快回复你！😊
+        pr-message: |
+  感谢你的贡献！🎉
+  在审核之前，请确保：
+  - 代码符合我们的贡献指南
+  - 所有测试通过
+  - 文档已更新（如果需要）
+  我们会尽快审核你的 PR！😊
