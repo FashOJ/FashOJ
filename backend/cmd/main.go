@@ -1,7 +1,7 @@
 package main
 
 import (
-	"FashOJ/backend/routes"
+	"github.com/FashOJ/FashOJ/routes"
 )
 
 func main() {
