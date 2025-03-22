@@ -27,6 +27,7 @@ func AuthMiddleware() gin.HandlerFunc {
 		var user models.User
 		if err := global.DB.Where("username = ?", username).First(&user).Error; err != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err})
+			return
 		}
 
 		ctx.Set("user", user)
