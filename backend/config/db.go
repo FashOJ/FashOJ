@@ -9,7 +9,6 @@ import (
 	"time"
 )
 
-
 // initDb() initializes the database.
 // It connects to the database and sets the global database.
 // It also sets the max idle connections, max open connections and the max lifetime of a connection.

@@ -4,33 +4,45 @@ import (
 	"FashOJ_Backend/global"
 	"FashOJ_Backend/models"
 	"FashOJ_Backend/utils"
-	"net/http"
-
 	"github.com/gin-gonic/gin"
+	"net/http"
 )
 
+// AuthMiddleware is a middleware that checks if the user is authenticated.
+// If the user is authenticated, the middleware will set the user in the context.
+// If the user is not authenticated, the middleware will return an error.
 func AuthMiddleware() gin.HandlerFunc {
+
+	// Check if the token is valid
 	return func(ctx *gin.Context) {
+
+		// Get the token from the header
 		token := ctx.GetHeader("Authorization")
 		if token == "" {
-			ctx.JSON(http.StatusBadRequest, gin.H{"error": "no token"})
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"Error": "No token",
+			})
 			ctx.Abort()
 			return
 		}
 
+		// Check if the token is valid.
 		username, err := utils.ParseJwt(token)
 		if err != nil {
 			ctx.JSON(http.StatusUnauthorized, gin.H{"error": err})
 			ctx.Abort()
 			return
 		}
-		var user models.User
-		if err := global.DB.Where("username = ?", username).First(&user).Error; err != nil {
-			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err})
+
+		// Check if the user exists.
+		var authenticatingUser models.User
+		if err := global.DB.Where("username = ?", username).First(&authenticatingUser).Error; err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{
+				"Error": err,
+			})
 			return
 		}
-
-		ctx.Set("user", user)
-		ctx.Next()
+		ctx.Set("user", authenticatingUser)
+		ctx.Next() // Continue to the next middleware
 	}
 }

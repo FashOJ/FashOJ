@@ -2,7 +2,7 @@ package models
 
 import "gorm.io/gorm"
 
-// User represents a user in the system.
+// "User" class represents a user in the system.
 // It contains the user's username, password, email, and permission level.
 type User struct {
 	gorm.Model

@@ -3,9 +3,8 @@ package controllers
 import (
 	"FashOJ_Backend/global"
 	"FashOJ_Backend/models"
-	"net/http"
-
 	"github.com/gin-gonic/gin"
+	"net/http"
 )
 
 func ChangePermission(ctx *gin.Context) {
@@ -56,6 +55,7 @@ func ChangePermission(ctx *gin.Context) {
 		})
 		return
 	} else {
+		// If the user is not an admin, return unauthorized.
 		ctx.JSON(http.StatusUnauthorized, gin.H{
 			"Error": "You are not admin, and have no permission to patch.",
 		})

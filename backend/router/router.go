@@ -3,7 +3,6 @@ package router
 import (
 	"FashOJ_Backend/controllers"
 	"FashOJ_Backend/middlewares"
-
 	"github.com/gin-gonic/gin"
 )
 
@@ -25,8 +24,8 @@ func SetupRouter() *gin.Engine {
 	normalProblem := r.Group("/api/problem")
 	normalProblem.Use(middlewares.AuthMiddleware())
 	{
-		normalProblem.POST("",controllers.CreateOrUpdataProblem)
-		normalProblem.POST("/:pid/upload",controllers.UploadTestcase)
+		normalProblem.POST("", controllers.CreateOrUpdataProblem)
+		normalProblem.POST("/:pid/upload", controllers.UploadTestcase)
 	}
 
 	normalSubmit := r.Group("/api/submit")
