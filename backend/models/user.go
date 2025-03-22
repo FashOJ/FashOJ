@@ -7,5 +7,5 @@ type User struct {
 	Username string `gorm:"unique"`
 	Password string
 	Email    string
-	Right    int // 0 表示普通用户，1表示管理员
+	Right    int  `gorm:"default:0"`// 0 表示普通用户，1表示管理员
 }
