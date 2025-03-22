@@ -4,6 +4,10 @@ import "gorm.io/gorm"
 
 type Problem struct {
 	gorm.Model
+	Try int `gorm:"dafault:0"`
+	Ac int `gorm:"dafault:0"`
+	AuthorID uint   `json:"author_id"` // 外键，指向 User 表的主键
+    Author   User   `json:"author" gorm:"foreignKey:AuthorID"` // 关联 User 表
 	Content    string    `json:"content"`
 	Difficulty int64     `json:"difficulty"`
 	ProblemID  string    `json:"problem_id" gorm:"unique"` // 唯一索引
@@ -15,9 +19,11 @@ type Problem struct {
 
 type Example struct {
 	gorm.Model
-	ProblemID string `json:"problem_id"` // 外键
-	Input     string `json:"input"`
-	Output    string `json:"output"`
+	ProblemID  string `json:"problem_id"`  // 外键
+	Input      string `json:"input"`
+	Output     string `json:"output"`
+	InputFile  string `json:"input_file"`  // 输入文件名
+	OutputFile string `json:"output_file"` // 输出文件名
 }
 
 type Limit struct {
@@ -29,7 +35,7 @@ type Limit struct {
 
 type Testcase struct {
 	gorm.Model
-	ProblemID string `json:"problem_id"`
-	Input     string
-	Output    string
+	ProblemID  string  `json:"problem_id"`
+	Input      string  `json:"input"`
+	Output     string  `json:"output"`
 }

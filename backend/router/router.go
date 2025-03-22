@@ -26,6 +26,7 @@ func SetupRouter() *gin.Engine {
 	normalProblem.Use(middlewares.AuthMiddleware())
 	{
 		normalProblem.POST("",controllers.CreateOrUpdataProblem)
+		normalProblem.POST("/:pid/upload",controllers.UploadTestcase)
 	}
 
 	normalSubmit := r.Group("/api/submit")
