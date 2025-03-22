@@ -1,3 +1,7 @@
 *.code-workspace
 backend/config/config.yaml
 backend/file
+.idea
+node_modules
+package-lock.json
+package.json
