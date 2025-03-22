@@ -7,18 +7,16 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-
 	"net/http"
 	"os"
 	"path"
 	"regexp"
 	"strings"
-
 	"github.com/gin-gonic/gin"
 )
 
 func CreateOrUpdataProblem(ctx *gin.Context) {
-	if ctx.Value("user").(models.User).Right != global.AdminUser {
+	if ctx.Value("user").(models.User).Permission != global.AdminUser {
 		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "you don't have right to create or updata problem"})
 		return
 	}

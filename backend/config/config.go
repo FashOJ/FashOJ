@@ -1,41 +1,48 @@
 package config
 
 import (
-	"log"
 	"github.com/spf13/viper"
+	"log"
 )
 
+// Structure of FashOJ configuration information.
 type Config struct {
-	App struct{
-		Port string
+	FashOJApp struct { // FashOJApp is the configuration of FashOJ.
+		Port string // port of FashOJ.
 	}
-	DataBase struct {
-		UserName string
-		Password string
-		Host     string
-		MaxIdleConns int
-		MaxOpenConns int
-
+	DataBase struct { // DataBase is the configuration of database.
+		UserName     string // username of database.
+		Password     string // password of database.
+		Host         string // host of database.
+		MaxIdleConns int    // max idle connections of database.
+		MaxOpenConns int    // max open connections of database.
 	}
 }
 
-var AppConfig *Config
+// AppConfig is the global configuration of FashOJ.
+var FashOJConfig *Config
 
+// InitConfig() initializes the configuration of FashOJ.
+// It reads the configuration file and unmarshals it to the global configuration.
+// It also initializes the database.
 func InitConfig() {
-	// dsn := fmt.Sprintf("%s:%s@tcp(%s)/main?charset=utf8mb4&parseTime=True&loc=Local")
-	viper.AddConfigPath("./config")
-	viper.SetConfigName("config")
-	viper.SetConfigType("yaml")
+	viper.AddConfigPath("./config") // The path of the configuration file.
+	viper.SetConfigName("config")   // The name of the configuration file.
+	viper.SetConfigType("yaml")     // The type of the configuration file.
 
+	// Read the configuration file.
 	if err := viper.ReadInConfig(); err != nil {
-		log.Fatalln("cannot read config file")
+		log.Fatalf("Cannot read config file, Error: %v \n", err)
 	}
 
-	AppConfig = &Config{}
+	// Unmarshal the configuration file to the global configuration.
+	FashOJConfig = &Config{}
 
-	if err := viper.Unmarshal(AppConfig); err != nil {
-		log.Fatalf("cat unmarshal the config file %v", err)
+	// Unmarshal the configuration file to the global configuration.
+	if err := viper.Unmarshal(FashOJConfig); err != nil {
+		log.Fatalf("Cat unmarshal the config file, Error: %v \n", err)
 	}
 
+	// Initialize the database.
 	initDb()
 }

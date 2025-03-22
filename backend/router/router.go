@@ -19,7 +19,7 @@ func SetupRouter() *gin.Engine {
 	user := r.Group("/api/user")
 	user.Use(middlewares.AuthMiddleware())
 	{
-		user.POST("/changeright", controllers.ChangeRight)
+		user.POST("/changeright", controllers.ChangePermission)
 	}
 
 	normalProblem := r.Group("/api/problem")

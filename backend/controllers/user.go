@@ -8,36 +8,55 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func ChangeRight(ctx *gin.Context) {
+func ChangePermission(ctx *gin.Context) {
+	// Get the user from the context.
 	user := ctx.Value("user").(models.User)
 
-	var input struct {
-		Username string
-		Right int
+	// Get the username and OldPermission from the request body.
+	var UserPatchPermission struct {
+		Username   string
+		Permission int
 	}
 
-	if err := ctx.ShouldBindJSON(&input); err != nil{
-		ctx.JSON(http.StatusBadRequest,gin.H{"error":err})
+	// Bind the request body to the UserPatchPermission struct.
+	if err := ctx.ShouldBindJSON(&UserPatchPermission); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"Error": err,
+		})
 		return
 	}
 
-	if user.Right == global.AdminUser {
-		var userChangeRight models.User
-		if err:=global.DB.Where("username = ?",input.Username).First(&userChangeRight).Error; err != nil{
-			ctx.JSON(http.StatusBadRequest,gin.H{"error":"no such user"})
-			return
-		}
-		if input.Right < global.MinUserRightCode || input.Right > global.MaxUserRightCode{
-			ctx.JSON(http.StatusBadRequest,gin.H{"error":"wrong right code"})
-			return
-		}
-		userChangeRight.Right = input.Right
-		global.DB.Save(&userChangeRight)
+	// Check if the user is an admin.
+	if user.Permission == global.AdminUser {
+		var userOldPermission models.User
 
-		ctx.JSON(http.StatusOK,gin.H{"status":"success"})
+		// Check if the user exists.
+		if err := global.DB.Where("username = ?", UserPatchPermission.Username).First(&userOldPermission).Error; err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"Error": "no such User or" + err.Error(),
+			})
+			return
+		}
+
+		// Check if the Permission code is valid.
+		if UserPatchPermission.Permission < global.MinUserPermissionCode || UserPatchPermission.Permission > global.MaxUserPermissionCode {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "wrong right code"})
+			return
+		}
+
+		// Change the Permission code and save.
+		userOldPermission.Permission = UserPatchPermission.Permission
+		global.DB.Save(&userOldPermission)
+
+		// Return success.
+		ctx.JSON(http.StatusOK, gin.H{
+			"Status": "success",
+		})
 		return
-	}else {
-		ctx.JSON(http.StatusUnauthorized,gin.H{"error":"you are not an admin"})
+	} else {
+		ctx.JSON(http.StatusUnauthorized, gin.H{
+			"Error": "You are not admin, and have no permission to patch.",
+		})
 		return
 	}
 }

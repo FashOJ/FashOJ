@@ -4,67 +4,105 @@ import (
 	"FashOJ_Backend/global"
 	"FashOJ_Backend/models"
 	"FashOJ_Backend/utils"
-	"net/http"
-
 	"github.com/gin-gonic/gin"
+	"net/http"
 )
 
-func Login(ctx *gin.Context){
+// Login is the controller for the login route.
+// It takes the username and password from the request body and checks if the user exists in the database.
+// If the user exists, it checks the password and returns the token.
+// If the user does not exist, it returns an error.
+func Login(ctx *gin.Context) {
+	var UserRequestInput models.User
 
-	var input models.User
-	if err:=ctx.ShouldBindJSON(&input);err!=nil{
-		ctx.JSON(http.StatusBadRequest,gin.H{"error":err,})
+	// Bind the request body to the UserRequestInput struct
+	if err := ctx.ShouldBindJSON(&UserRequestInput); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"Error": err,
+		})
 		return
 	}
 
-	var user models.User
-	if err := global.DB.Where("username = ?",input.Username).First(&user).Error;err != nil{
-		ctx.JSON(http.StatusUnauthorized,gin.H{"error":"wrong password or username"})
+	// Find the user in the database
+	var foundUser models.User
+	if err := global.DB.Where("username = ?", UserRequestInput.Username).First(&foundUser).Error; err != nil {
+		ctx.JSON(http.StatusUnauthorized, gin.H{
+			"Error": "wrong password or username",
+		})
 		return
 	}
 
-	if !utils.CheckPwd(input.Password,user.Password){
-		ctx.JSON(http.StatusUnauthorized,gin.H{"error":"wrong password or username"})
+	// Check the password
+	if !utils.CheckPwd(UserRequestInput.Password, foundUser.Password) {
+		ctx.JSON(http.StatusUnauthorized, gin.H{
+			"Error": "wrong password or username",
+		})
 		return
 	}
 
-	token,err := utils.GenJwt(user.Username)
-	if err != nil{
-		ctx.JSON(http.StatusInternalServerError,gin.H{"error":err})
+	// Generate the token
+	token, err := utils.GenJwt(foundUser.Username)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"Error": err,
+		})
 	}
 
-	ctx.JSON(http.StatusOK,gin.H{"token":token})
-
+	// Return the token
+	ctx.JSON(http.StatusOK, gin.H{
+		"Token": token,
+	})
 }
 
-func Register(ctx *gin.Context){
-	var user models.User
-	if err:=ctx.ShouldBindJSON(&user);err!=nil{
-		ctx.JSON(http.StatusBadRequest,gin.H{"error":err,})
+// Register is the controller for the register route.
+// It takes the username and password from the request body and creates a new user in the database.
+// Then returns the token.
+func Register(ctx *gin.Context) {
+
+	// Bind the request body to the NewUserRequest struct
+	var NewUserRequest models.User
+	if err := ctx.ShouldBindJSON(&NewUserRequest); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"Error": err,
+		})
 		return
 	}
 
-	hashedPwd,err := utils.HashPwd(user.Password)
-	if err != nil{
-		ctx.JSON(http.StatusInternalServerError,gin.H{"error":err,})
+	// Hash the password
+	hashedPwd, err := utils.HashPwd(NewUserRequest.Password)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"Error": err,
+		})
 	}
 
-	user.Password = hashedPwd
-	token,err := utils.GenJwt(user.Username)
-	if err !=nil{
-		ctx.JSON(http.StatusInternalServerError,gin.H{"error":err,})
+	// Generate the token and return it to the user
+	NewUserRequest.Password = hashedPwd
+	token, err := utils.GenJwt(NewUserRequest.Username)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err})
 		return
 	}
 
-	if err:=global.DB.AutoMigrate(&user); err!=nil{
-		ctx.JSON(http.StatusInternalServerError,gin.H{"error":err,})
-		return
-	}
-	
-	if err := global.DB.Create(&user).Error;err!=nil{
-		ctx.JSON(http.StatusInternalServerError,gin.H{"error":err})
+	// Call the AutoMigrate method of global.DB to automatically migrate the database table structure.
+	// Ensure that the table corresponding to the NewUserRequest struct exists; if not, create it.
+	if err := global.DB.AutoMigrate(&NewUserRequest); err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"Error": err,
+		})
 		return
 	}
 
-	ctx.JSON(http.StatusOK,gin.H{"token":token})
+	// Create the user into the database
+	if err := global.DB.Create(&NewUserRequest).Error; err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"Error": err,
+		})
+		return
+	}
+
+	// Return the token
+	ctx.JSON(http.StatusOK, gin.H{
+		"Token": token,
+	})
 }

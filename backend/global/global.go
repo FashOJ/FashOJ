@@ -2,12 +2,12 @@ package global
 
 import "gorm.io/gorm"
 
-const MinUserRightCode = 0
-const MaxUserRightCode = 1
+const MinUserPermissionCode = -1
+const MaxUserPermissionCode = 0
 
 const (
-	NormalUser = iota
-	AdminUser
+	AdminUser = iota - 1
+	NormalUser
 )
 
 var JwtKey []byte

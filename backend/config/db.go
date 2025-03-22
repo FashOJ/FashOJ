@@ -3,31 +3,44 @@ package config
 import (
 	"FashOJ_Backend/global"
 	"fmt"
-	"log"
-	"time"
-
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"log"
+	"time"
 )
 
-func initDb(){
-	dsn := fmt.Sprintf("%s:%s@tcp(%s)/main?charset=utf8mb4&parseTime=True&loc=Local",AppConfig.DataBase.UserName,AppConfig.DataBase.Password,AppConfig.DataBase.Host)
-	db,err := gorm.Open(mysql.New(mysql.Config{
-		DSN:dsn,
-	}),&gorm.Config{})
 
-	if err != nil{
-		log.Fatalln("error:can't connect db")
+// initDb() initializes the database.
+// It connects to the database and sets the global database.
+// It also sets the max idle connections, max open connections and the max lifetime of a connection.
+func initDb() {
+	// DataSourceName is the connection string of database.
+	DataSourceName := fmt.Sprintf(
+		"%s:%s@tcp(%s)/main?charset=utf8mb4&parseTime=True&loc=Local",
+		FashOJConfig.DataBase.UserName,
+		FashOJConfig.DataBase.Password,
+		FashOJConfig.DataBase.Host,
+	)
+
+	// Connect to the database.
+	database, err := gorm.Open(mysql.New(mysql.Config{
+		DSN: DataSourceName,
+	}), &gorm.Config{})
+	if err != nil {
+		log.Fatalf("Can't connect db,Error:%v \n", err)
 	}
 
-	sqldb,err := db.DB()
-	if err != nil{
-		log.Fatalf("err:%v",err)
+	// Get the Mysql object of database.
+	sqldb, err := database.DB()
+	if err != nil {
+		log.Fatalf("Can't get db,Error:%v \n", err)
 	}
 
-	sqldb.SetMaxIdleConns(AppConfig.DataBase.MaxIdleConns)
-	sqldb.SetMaxOpenConns(AppConfig.DataBase.MaxOpenConns)
+	// Set the max idle connections , max open connections of database and the max lifetime of a connection.
+	sqldb.SetMaxIdleConns(FashOJConfig.DataBase.MaxIdleConns)
+	sqldb.SetMaxOpenConns(FashOJConfig.DataBase.MaxOpenConns)
 	sqldb.SetConnMaxLifetime(time.Hour)
 
-	global.DB = db
+	// Set the global database.
+	global.DB = database
 }
