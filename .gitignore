@@ -1,2 +1,2 @@
 *.code-workspace
-backend/config.yaml
+backend/config/config.yaml
