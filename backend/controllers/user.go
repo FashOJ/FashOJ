@@ -40,7 +40,9 @@ func ChangePermission(ctx *gin.Context) {
 
 		// Check if the Permission code is valid.
 		if UserPatchPermission.Permission < global.MinUserPermissionCode || UserPatchPermission.Permission > global.MaxUserPermissionCode {
-			ctx.JSON(http.StatusBadRequest, gin.H{"error": "wrong right code"})
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"Error": "wrong right code",
+			})
 			return
 		}
 
