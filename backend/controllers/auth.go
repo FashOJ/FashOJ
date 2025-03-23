@@ -80,7 +80,9 @@ func Register(ctx *gin.Context) {
 	NewUserRequest.Password = hashedPwd
 	token, err := utils.GenJwt(NewUserRequest.Username)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err})
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"Error": err,
+		})
 		return
 	}
 

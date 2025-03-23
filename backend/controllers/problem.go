@@ -6,144 +6,269 @@ import (
 	"archive/zip"
 	"bytes"
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"io"
 	"net/http"
 	"os"
 	"path"
 	"regexp"
 	"strings"
-	"github.com/gin-gonic/gin"
 )
 
-func CreateOrUpdataProblem(ctx *gin.Context) {
+// CreateProblem creates a new problem in the database.
+// It requires the user to have permission to create or update problems.
+// The problem data is expected to be provided in the request body as JSON.
+// If the problem is successfully created, it returns a 200 OK response.
+// If there is an error, it returns an appropriate error response.
+func CreateProblem(ctx *gin.Context) {
+
+	// Check if the user has permission to create or update problems
 	if ctx.Value("user").(models.User).Permission != global.AdminUser {
-		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "you don't have right to create or updata problem"})
+		ctx.JSON(http.StatusUnauthorized, gin.H{
+			"Error": "You don't have permission to create or updata problem",
+		})
 		return
 	}
 
+	// Bind the problem data from the request body.
 	var problem models.Problem
 	if err := ctx.ShouldBindJSON(&problem); err != nil {
-		ctx.JSON(http.StatusBadRequest, err.Error())
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"Error": err.Error(),
+		})
 		return
 	}
 
+	// Set the author of the problem to the current user.
 	problem.Author = ctx.Value("user").(models.User)
 
-	if err := global.DB.AutoMigrate(&models.Problem{}, &models.Example{}, &models.Limit{}); err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	// Auto migrate the database schema to create the necessary tables.
+	if err := global.DB.AutoMigrate(&models.Problem{}, &models.Testcase{}, &models.Limit{}); err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"Error": err.Error(),
+		})
 		return
 	}
 
+	// Save the problem to the database.
 	if err := global.DB.Save(&problem).Error; err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"Error": err.Error(),
+		})
 		return
 	}
+	ctx.JSON(http.StatusOK, gin.H{
+		"Status": "Success",
+	})
+}
 
-	ctx.JSON(http.StatusOK, gin.H{"status": "success"})
+// ModifyProblem modifies an existing problem in the database.
+// It requires the user to have permission to create or update problems.
+// The problem ID should be provided in the URL parameter, and the updated problem data is expected to be provided in the request body as JSON.
+// If the problem is successfully modified, it returns a 200 OK response.
+// If there is an error, it returns an appropriate error response.
+func ModifyProblem(ctx *gin.Context) {
+    // Check if the user has permission to create or update problems
+    if ctx.Value("user").(models.User).Permission != global.AdminUser {
+        ctx.JSON(http.StatusUnauthorized, gin.H{
+            "Error": "You don't have permission to modify problem",
+        })
+        return
+    }
+
+    // Get the problem ID from the URL parameter
+    problemID := ctx.Param("pid")
+    if problemID == "" {
+        ctx.JSON(http.StatusBadRequest, gin.H{
+            "Error": "You don't have a valid Problem ID",
+        })
+        return
+    }
+
+    // Find the existing problem in the database
+    var problem models.Problem
+    if err := global.DB.Where("problem_id = ?", problemID).First(&problem).Error; err != nil {
+        ctx.JSON(http.StatusNotFound, gin.H{
+            "Error": "Problem not found",
+        })
+        return
+    }
+
+    // Bind the updated problem data from the request body
+    var updatedProblem models.Problem
+    if err := ctx.ShouldBindJSON(&updatedProblem); err != nil {
+        ctx.JSON(http.StatusBadRequest, gin.H{
+            "Error": err.Error(),
+        })
+        return
+    }
+
+    // Update the problem fields
+    problem.Title = updatedProblem.Title
+    problem.Content = updatedProblem.Content
+    problem.Difficulty = updatedProblem.Difficulty
+	problem.Author = ctx.Value("user").(models.User)
+	problem.AuthorID = problem.Author.ID
+	problem.Limit = updatedProblem.Limit
+
+    // Save the updated problem to the database
+    if err := global.DB.Save(&problem).Error; err != nil {
+        ctx.JSON(http.StatusInternalServerError, gin.H{
+            "Error": err.Error(),
+        })
+        return
+    }
+    ctx.JSON(http.StatusOK, gin.H{
+        "Status": "Success",
+    })
 }
 
 func UploadTestcase(ctx *gin.Context) {
+
+	// Auto migrate the database schema to create the Testcase tables.
 	if err := global.DB.AutoMigrate(&models.Testcase{}); err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"Error": err.Error(),
+		})
 		return
 	}
 
-	file, err := ctx.FormFile("file")
+	// Get the file from the request.
+	uploadedFile, err := ctx.FormFile("file")
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"Error": err.Error(),
+		})
 		return
 	}
 
-	tempDir := os.TempDir()
-	filePath := path.Join(tempDir, file.Filename)
-	if err := ctx.SaveUploadedFile(file, filePath); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	// Save the file(Uploaded ZIP TestCase) to the temporary folder.
+	tempZipFilePath := path.Join(global.SystemTempFolder, uploadedFile.Filename)
+	if err := ctx.SaveUploadedFile(uploadedFile, tempZipFilePath); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"Error": err.Error(),
+		})
 		return
 	}
 
-	zipFile, err := zip.OpenReader(filePath)
+	// Open the ZIP file of the test cases.
+	zipFile, err := zip.OpenReader(tempZipFilePath)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"Error": err.Error(),
+		})
 		return
 	}
 	defer zipFile.Close()
 
+	// Get the problem ID from the URL parameter.
 	problemID := ctx.Param("pid")
 	if problemID == "" {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "problem ID is required"})
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"Error": "Problem ID is required",
+		})
 		return
 	}
 
-	inputs := make(map[string]*zip.File)
-	outputs := make(map[string]*zip.File)
 
-	var testcases []models.Testcase
+	// Classify the test cases into input and output files.
+	// Input files should have a ".in" extension, and output files should have a ".out" extension.
+	testCasesInputs := make(map[string]*zip.File)
+	testCaseOutputs := make(map[string]*zip.File)
 	for _, file := range zipFile.File {
 		if !isTestcaseFile(file.Name) {
-			ctx.JSON(http.StatusBadRequest, gin.H{"error": "文件格式错误"})
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"Error": "File format error: " + file.Name + "\nShould be like: 1.in 1.out 2.in 2.out ...",
+			})
 			return
 		}
 		isInput := strings.HasSuffix(file.Name, ".in")
 		if isInput {
-			inputs[strings.TrimSuffix(file.Name, ".in")] = file
+			testCasesInputs[strings.TrimSuffix(file.Name, ".in")] = file
 		} else {
-			outputs[strings.TrimSuffix(file.Name, ".out")] = file
+			testCaseOutputs[strings.TrimSuffix(file.Name, ".out")] = file
 		}
 	}
 
-	for name := range inputs {
-		infile, err := inputs[name].Open()
+	var testcases []models.Testcase
+
+	// Process each input file and its corresponding output file.
+	// For each input file, read its content and save it to a file with the format "problemID_inputFileName".
+	// For each output file, read its content and save it to a file with the format "problemID_outputFileName".
+	// Create a Testcase object with the problem ID, input file name, and output file name.
+	// Append the Testcase object to the testcases slice.
+	for name := range testCasesInputs {
+		infile, err := testCasesInputs[name].Open()
 		if err != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"Error": err.Error(),
+			})
 			return
 		}
 		defer infile.Close()
 
-		output, ok := outputs[name]
+		// Check if the corresponding output file exists.
+		output, ok := testCaseOutputs[name]
 		if !ok {
-			ctx.JSON(http.StatusBadRequest, gin.H{"error": "缺少对应的输出文件: " + name + ".out"})
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"Error": "The corresponding output file is missing: " + name + ".out",
+			})
 			return
 		}
-
 		outfile, err := output.Open()
 		if err != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"Error": err.Error(),
+			})
 			return
 		}
 		defer outfile.Close()
 
-		incontent, err := io.ReadAll(infile)
-		if err != nil {
-			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-			return
-		}
-
-		outcontent, err := io.ReadAll(outfile)
-		if err != nil {
-			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-			return
-		}
-
+		// Set the file name and save the input and output files.
+		// If the file directory does not exist, create it.
 		inputFileName := fmt.Sprintf("%s_%s.in", problemID, name)
 		outputFileName := fmt.Sprintf("%s_%s.out", problemID, name)
-
 		inputFilePath := path.Join("file", inputFileName)
 		outputFilePath := path.Join("file", outputFileName)
-
 		if err := os.MkdirAll("file", os.ModePerm); err != nil {
-			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			ctx.JSON(http.StatusInternalServerError, gin.H{
+				"Error": err.Error(),
+			})
 			return
 		}
 
-		if err := saveFile(bytes.NewReader(incontent), inputFilePath); err != nil {
-			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		// Read the input and output file content.
+		inTestCaseContent, err := io.ReadAll(infile)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{
+				"Error": err.Error(),
+			})
 			return
 		}
-		if err := saveFile(bytes.NewReader(outcontent), outputFilePath); err != nil {
-			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		outTestCaseContent, err := io.ReadAll(outfile)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{
+				"Error": err.Error(),
+			})
 			return
 		}
 
+		// Save the input and output files to the file directory.
+		if err := saveFile(bytes.NewReader(inTestCaseContent), inputFilePath); err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{
+				"Error": err.Error(),
+			})
+			return
+		}
+		if err := saveFile(bytes.NewReader(outTestCaseContent), outputFilePath); err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{
+				"Error": err.Error(),
+			})
+			return
+		}
+
+		// Create a Testcase object and append it to the testcases slice.
+		// The Testcase object contains the problem ID, input file name, and output file name.
 		testcases = append(testcases, models.Testcase{
 			ProblemID: problemID,
 			Input:     inputFileName,
@@ -151,38 +276,54 @@ func UploadTestcase(ctx *gin.Context) {
 		})
 	}
 
+	// Find the problem in the database and update its test cases.
+	// Upgrade the problem object and save it to the database.
 	var problem models.Problem
 	if err := global.DB.Where("problem_id = ?", problemID).First(&problem).Error; err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"Error": err.Error(),
+		})
 		return
 	}
-
 	problem.Testcase = testcases
 	if err := global.DB.Save(&problem).Error; err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"Error": err.Error(),
+		})
 		return
 	}
 
-	if err := os.Remove(filePath); err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	// Delete the temporary ZIP file.
+	/*
+		If the temporary ZIP file is not deleted, it will occupy disk space and can cause problems when uploading new test cases.
+		Therefore, it is important to delete the temporary ZIP file after the test cases have been processed.
+	*/
+	if err := os.Remove(tempZipFilePath); err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"Error": err.Error(),
+		})
 		return
 	}
-
-	ctx.JSON(http.StatusOK, gin.H{"status": "success"})
+	ctx.JSON(http.StatusOK, gin.H{
+		"Status": "Success",
+	})
 }
 
+// DownloadTestcase downloads the test cases of a problem in ZIP format.
+// It requires the user to have permission to view problems.
 func saveFile(reader io.Reader, filePath string) error {
 	file, err := os.Create(filePath)
 	if err != nil {
 		return err
 	}
 	defer file.Close()
-
 	_, err = io.Copy(file, reader)
 	return err
 }
 
+// isTestcaseFile checks if the given filename is a valid test case file.
+// A valid test case file should have a ".in" or ".out" extension.
 func isTestcaseFile(filename string) bool {
-	matched, _ := regexp.MatchString(`^\d+\.(in|out)$`, filename)
-	return matched
+	matchedFileName, _ := regexp.MatchString(`^\d+\.(in|out)$`, filename)
+	return matchedFileName
 }

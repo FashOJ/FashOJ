@@ -1,8 +1,10 @@
 package global
 
 import (
-	"gorm.io/gorm"
+	"os"
 	"time"
+
+	"gorm.io/gorm"
 )
 
 // NOTE WARNING!!!
@@ -26,3 +28,6 @@ var DB *gorm.DB
 
 // BcryptCost is the cost factor used by bcrypt
 const BcryptCost = 12
+
+// SystemTempFolder is the path to the system temporary folder
+var SystemTempFolder = os.TempDir()

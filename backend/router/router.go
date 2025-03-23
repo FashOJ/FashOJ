@@ -7,29 +7,29 @@ import (
 )
 
 func SetupRouter() *gin.Engine {
-	r := gin.Default()
+	fashOJBackendRouter := gin.Default()
 
-	auth := r.Group("/api/auth")
+	auth := fashOJBackendRouter.Group("/api/auth")
 	{
 		auth.POST("/login", controllers.Login)
 		auth.POST("/register", controllers.Register)
 	}
 
-	user := r.Group("/api/user")
+	user := fashOJBackendRouter.Group("/api/user")
 	user.Use(middlewares.AuthMiddleware())
 	{
-		user.POST("/changeright", controllers.ChangePermission)
+		user.POST("/changepermission", controllers.ChangePermission)
 	}
 
-	normalProblem := r.Group("/api/problem")
+	normalProblem := fashOJBackendRouter.Group("/api/problem")
 	normalProblem.Use(middlewares.AuthMiddleware())
 	{
-		normalProblem.POST("", controllers.CreateOrUpdataProblem)
+		normalProblem.POST("", controllers.CreateProblem)
 		normalProblem.POST("/:pid/upload", controllers.UploadTestcase)
 	}
 
-	normalSubmit := r.Group("/api/submit")
+	normalSubmit := fashOJBackendRouter.Group("/api/submit")
 	normalSubmit.Use(middlewares.AuthMiddleware())
 
-	return r
+	return fashOJBackendRouter
 }
