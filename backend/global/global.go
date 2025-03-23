@@ -16,7 +16,7 @@ const (
 	NormalUser
 )
 
-const ThreeDays = 3 * 24 * time.Hour
+const ValidTime = 3 * 24 * time.Hour
 
 // JwtKey is the key used to sign JWT tokens
 var JwtKey []byte

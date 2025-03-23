@@ -14,7 +14,7 @@ func GenJwt(username string) (string, error) {
 	// Create a new "token object", specifying signing method and the claims
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"username":       username,
-		"expirationTime": time.Now().Add(global.ThreeDays).Unix(),
+		"expirationTime": time.Now().Add(global.ValidTime).Unix(),
 	})
 	// Use the token object's SignedString method to get the complete signed token string 
 	signedToken, err := token.SignedString(global.JwtKey)
