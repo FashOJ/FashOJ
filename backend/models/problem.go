@@ -13,19 +13,10 @@ type Problem struct {
 	Difficulty int64      `json:"difficulty"`
 	ProblemID  string     `json:"problem_id" gorm:"unique"` // 唯一索引
 	Title      string     `json:"title"`
-	Examples   []Example  `json:"examples" gorm:"foreignKey:ProblemID"` // 一对多关系
 	Limit      Limit      `json:"limit" gorm:"foreignKey:ProblemID"`    // 一对一关系
 	Testcase   []Testcase `json:"testcases" gorm:"foreignKey:ProblemID"`
 }
 
-type Example struct {
-	gorm.Model
-	ProblemID  string `json:"problem_id"` // 外键
-	Input      string `json:"input"`
-	Output     string `json:"output"`
-	InputFile  string `json:"input_file"`  // 输入文件名
-	OutputFile string `json:"output_file"` // 输出文件名
-}
 
 type Limit struct {
 	gorm.Model
