@@ -7,3 +7,4 @@ package-lock.json
 package.json
 backend/Log
 .vscode
+judger/testTEMP/execTemp/*
