@@ -43,8 +43,9 @@ func Login(ctx *gin.Context) {
 	// Generate the token
 	token, err := utils.GenJwt(foundUser.Username)
 	if err != nil {
+		global.Logger.Error(err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"Error": err,
+			"Error": "server error",
 		})
 	}
 
@@ -71,8 +72,9 @@ func Register(ctx *gin.Context) {
 	// Hash the password
 	hashedPwd, err := utils.HashPwd(NewUserRequest.Password)
 	if err != nil {
+		global.Logger.Error(err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"Error": err,
+			"Error": "server error",
 		})
 	}
 
@@ -80,8 +82,9 @@ func Register(ctx *gin.Context) {
 	NewUserRequest.Password = hashedPwd
 	token, err := utils.GenJwt(NewUserRequest.Username)
 	if err != nil {
+		global.Logger.Error(err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"Error": err,
+			"Error": "server error",
 		})
 		return
 	}
@@ -89,16 +92,18 @@ func Register(ctx *gin.Context) {
 	// Call the AutoMigrate method of global.DB to automatically migrate the database table structure.
 	// Ensure that the table corresponding to the NewUserRequest struct exists; if not, create it.
 	if err := global.DB.AutoMigrate(&NewUserRequest); err != nil {
+		global.Logger.Error(err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"Error": err,
+			"Error": "server error",
 		})
 		return
 	}
 
 	// Create the user into the database
 	if err := global.DB.Create(&NewUserRequest).Error; err != nil {
+		global.Logger.Error(err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"Error": err,
+			"Error": "server error",
 		})
 		return
 	}
