@@ -2,52 +2,63 @@
 ---
 ```
 FashOJ
-├── .github/
-│   └── workflows/
-│       └── greetings.yml
+├── .github
+│   ├── workflows
+│   │   └── greetings.yml
 ├── .gitignore
-├── backend/
-│   ├── config/
+├── LICENSE
+├── README.md
+├── backend
+│   ├── config
 │   │   ├── config.go
 │   │   ├── config.yaml
-│   │   └── db.go
-│   ├── controllers/
+│   │   ├── db.go
+│   ├── controllers
 │   │   ├── auth.go
 │   │   ├── problem.go
-│   │   └── user.go
-│   ├── global/
-│   │   └── global.go
+│   │   ├── user.go
+│   ├── global
+│   │   ├── global.go
 │   ├── go.mod
 │   ├── go.sum
 │   ├── main.go
-│   ├── middlewares/
-│   │   └── auth.go
-│   ├── models/
+│   ├── middlewares
+│   │   ├── auth.go
+│   ├── models
 │   │   ├── problem.go
-│   │   └── user.go
-│   ├── router/
-│   │   └── router.go
-│   └── utils/
-│       └── utils.go
+│   │   ├── user.go
+│   ├── router
+│   │   ├── router.go
+│   ├── utils
+│   │   ├── logger.go
+│   │   └── utils.go
 ├── config.yaml
-├── docs/
+├── docs
 │   ├── API.md
 │   ├── DEPLOYMENT.md
-│   └── SECURITY.md
-├── go.mod
-├── judger/
-│   ├── compiler/
-│   │   ├── c.go
-│   │   ├── java.go
-│   │   └── python.go
-│   └── sandbox/
-│       └── seccomp/
-│           ├── c.json
-│           ├── java.json
-│           └── python.json
-├── LICENSE
-├── README.md
-└── scripts/
+│   ├── SECURITY.md
+├── judger
+│   ├── cmd
+│   │   ├── main.go
+│   ├── go.mod
+│   ├── internal
+│   │   ├── config
+│   │   ├── judge
+│   │   │   ├── comparer.go
+│   │   │   ├── complier.go
+│   │   │   ├── executor.go
+│   │   │   ├── judger.go
+│   │   ├── sandbox
+│   │   ├── utils
+│   ├── testTEMP
+│   │   ├── execTemp
+│   │   ├── outputCase
+│   │   │   ├── output1.txt
+│   │   ├── sourceCode
+│   │   │   ├── test.cpp
+│   │   └── testCase
+│   │       └── input1.txt
+└── scripts
     ├── benchmark.sh
     ├── deploy.sh
     └── setup_judger.sh
