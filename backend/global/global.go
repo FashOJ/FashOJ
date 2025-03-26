@@ -4,6 +4,7 @@ import (
 	"os"
 	"time"
 
+	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
@@ -31,3 +32,5 @@ const BcryptCost = 12
 
 // SystemTempFolder is the path to the system temporary folder
 var SystemTempFolder = os.TempDir()
+
+var Logger *zap.SugaredLogger

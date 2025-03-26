@@ -1,5 +1,6 @@
-App: 
+FashOJApp: 
   Port: 3000
+  LogPath: Log
 DataBase: 
   UserName: root
   password: 123456

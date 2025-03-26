@@ -5,16 +5,20 @@ import (
 	"FashOJ_Backend/global"
 	"FashOJ_Backend/router"
 	"FashOJ_Backend/utils"
-	"fmt"
 )
 
 func main(){
+	config.InitConfig()
+	utils.InitLogger()
+
+	defer global.Logger.Sync()
+	global.Logger.Info("InitConfig and Logger")	
 	var err error
 	if global.JwtKey,err = utils.GenerateHMACKey(); err != nil{
-		fmt.Println("error when Gen JwtKey")
+		global.Logger.Errorf("Error at generate jwt key Error: %v",err)
 		return
 	}
-	config.InitConfig()
+
 	r:=router.SetupRouter()
 	r.Run(":"+config.FashOJConfig.FashOJApp.Port)
 }

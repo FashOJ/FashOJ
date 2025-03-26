@@ -9,6 +9,7 @@ import (
 type Config struct {
 	FashOJApp struct { // FashOJApp is the configuration of FashOJ.
 		Port string // port of FashOJ.
+		LogPath  string
 	}
 	DataBase struct { // DataBase is the configuration of database.
 		UserName     string // username of database.
