@@ -5,3 +5,4 @@ backend/file
 node_modules
 package-lock.json
 package.json
+backend/Log
