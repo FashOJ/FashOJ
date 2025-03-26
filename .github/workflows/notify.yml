@@ -43,10 +43,10 @@ jobs:
             '{
               "subject": {
                 "type": "commit",
-                "title": "New commit in \($repo)",
-                "url": \($url)
+                "title": ("New commit in " + $repo),
+                "url": $url
               },
-              "message": \($msg)
+              "message": $msg
             }')
           
           # Send notifications with error handling
