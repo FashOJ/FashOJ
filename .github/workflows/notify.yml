@@ -1,0 +1,63 @@
+name: Notify Collaborators on New Commit
+on:
+  push:
+    branches:
+      - main
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        
+      - name: Get commit details
+        id: commit
+        run: |
+          echo "commit_hash=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
+          echo "commit_message=$(git log -1 --pretty=%B)" >> $GITHUB_OUTPUT
+          echo "commit_author=$(git log -1 --pretty=%an)" >> $GITHUB_OUTPUT
+          
+      - name: Notify collaborators
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Get latest commit details
+          COMMIT_URL="https://github.com/$GITHUB_REPOSITORY/commit/${{ steps.commit.outputs.commit_hash }}"
+          COMMIT_DIFF=$(git diff --stat HEAD~1)
+          MESSAGE="New commit by ${{ steps.commit.outputs.commit_author }}: ${{ steps.commit.outputs.commit_message }}\n\nChanges:\n$COMMIT_DIFF\n\nView changes: $COMMIT_URL"
+          
+          # Get repository collaborators with error handling
+          if ! COLLABORATORS=$(curl -f -s -H "Authorization: token $GITHUB_TOKEN" \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/collaborators" | jq -r '.[].login'); then
+            echo "Failed to get collaborators"
+            exit 1
+          fi
+          
+          # Prepare notification payload
+          NOTIFICATION_PAYLOAD=$(jq -n \
+            --arg msg "$MESSAGE" \
+            --arg url "$COMMIT_URL" \
+            --arg repo "$GITHUB_REPOSITORY" \
+            '{
+              "subject": {
+                "type": "commit",
+                "title": "New commit in \($repo)",
+                "url": \($url)
+              },
+              "message": \($msg)
+            }')
+          
+          # Send notifications with error handling
+          for collaborator in $COLLABORATORS; do
+            if ! curl -f -X POST \
+              -H "Authorization: token $GITHUB_TOKEN" \
+              -H "Accept: application/vnd.github.v3+json" \
+              -d "$NOTIFICATION_PAYLOAD" \
+              "https://api.github.com/repos/$GITHUB_REPOSITORY/notifications"; then
+              echo "Failed to notify $collaborator"
+            else
+              echo "Successfully notified $collaborator"
+            fi
+          done
+          
+          echo "Notification process completed"
