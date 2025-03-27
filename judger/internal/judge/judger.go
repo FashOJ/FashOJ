@@ -6,7 +6,7 @@ import (
 )
 
 func Judge(sourcePath, execPath, inputPath, answerPath string, timeLimit int) string {
-	if err := Compile(sourcePath, execPath); err != nil {
+	if err := CompileCpp17(sourcePath, execPath); err != nil {
 		return fmt.Sprintf("编译错误: %v", err)
 	}
 	output, err := Run(execPath, inputPath, timeLimit)

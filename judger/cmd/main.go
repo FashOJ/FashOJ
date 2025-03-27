@@ -7,12 +7,13 @@ import (
 
 func main() {
 	
-	source := "../testTEMP/sourceCode/test.cpp"
+	sourceCPP := "../testTEMP/sourceCode/testCPP.cpp"
+	// sourcePython := "../testTEMP/sourceCode/testPython.cpp"
 	exec := "../testTEMP/execTemp/test"
 	input := "../testTEMP/testCase/input1.txt"
 	answer := "../testTEMP/outputCase/output1.txt"
 	timeLimit := 1000 // 1s
 
-	result := judge.Judge(source, exec, input, answer, timeLimit)
+	result := judge.Judge(sourceCPP, exec, input, answer, timeLimit)
 	fmt.Println("评测结果:", result)
 }

@@ -7,7 +7,7 @@ import (
 )
 
 // Compile 负责编译 C++ 代码
-func Compile(sourcePath, outputPath string) error {
+func CompileCpp17(sourcePath, outputPath string) error {
 	cmd := exec.Command("g++", sourcePath, "-o", outputPath, "-O2", "-std=c++17", "-Wall", "-Wextra")
 	cmd.Stderr = os.Stderr // 捕获编译错误
 
@@ -17,3 +17,4 @@ func Compile(sourcePath, outputPath string) error {
 	}
 	return nil
 }
+
