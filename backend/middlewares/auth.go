@@ -40,6 +40,7 @@ func AuthMiddleware() gin.HandlerFunc {
 			ctx.JSON(http.StatusInternalServerError, gin.H{
 				"Error": err,
 			})
+			ctx.Abort()
 			return
 		}
 		ctx.Set("user", authenticatingUser)

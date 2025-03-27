@@ -3,8 +3,9 @@ package controllers
 import (
 	"FashOJ_Backend/global"
 	"FashOJ_Backend/models"
-	"github.com/gin-gonic/gin"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 func ChangePermission(ctx *gin.Context) {
@@ -17,11 +18,20 @@ func ChangePermission(ctx *gin.Context) {
 		Permission int
 	}
 
+	UserPatchPermission.Permission = -2
+
 	// Bind the request body to the UserPatchPermission struct.
 	if err := ctx.ShouldBindJSON(&UserPatchPermission); err != nil {
 		global.Logger.Error(err)
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"Error": err,
+		})
+		return
+	}
+
+	if UserPatchPermission.Permission == -2 {
+		ctx.JSON(http.StatusBadRequest,gin.H{
+			"Error":"request format error",
 		})
 		return
 	}
@@ -48,7 +58,13 @@ func ChangePermission(ctx *gin.Context) {
 
 		// Change the Permission code and save.
 		userOldPermission.Permission = UserPatchPermission.Permission
-		global.DB.Save(&userOldPermission)
+		if err:=global.DB.Save(&userOldPermission).Error;err!=nil{
+			ctx.JSON(http.StatusInternalServerError,gin.H{
+				"Error":"wrong",
+			})
+			global.Logger.Errorln(err.Error())
+			return
+		}
 
 		// Return success.
 		ctx.JSON(http.StatusOK, gin.H{

@@ -91,13 +91,6 @@ func Register(ctx *gin.Context) {
 
 	// Call the AutoMigrate method of global.DB to automatically migrate the database table structure.
 	// Ensure that the table corresponding to the NewUserRequest struct exists; if not, create it.
-	if err := global.DB.AutoMigrate(&NewUserRequest); err != nil {
-		global.Logger.Error(err)
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"Error": "server error",
-		})
-		return
-	}
 
 	// Create the user into the database
 	if err := global.DB.Create(&NewUserRequest).Error; err != nil {

@@ -42,14 +42,6 @@ func CreateProblem(ctx *gin.Context) {
 	// Set the author of the problem to the current user.
 	problem.Author = ctx.Value("user").(models.User)
 
-	// Auto migrate the database schema to create the necessary tables.
-	if err := global.DB.AutoMigrate(&models.Problem{}, &models.Testcase{}, &models.Limit{}); err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"Error": err.Error(),
-		})
-		return
-	}
-
 	// Save the problem to the database.
 	if err := global.DB.Save(&problem).Error; err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
@@ -125,13 +117,6 @@ func ModifyProblem(ctx *gin.Context) {
 
 func UploadTestcase(ctx *gin.Context) {
 
-	// Auto migrate the database schema to create the Testcase tables.
-	if err := global.DB.AutoMigrate(&models.Testcase{}); err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"Error": err.Error(),
-		})
-		return
-	}
 
 	// Get the file from the request.
 	uploadedFile, err := ctx.FormFile("file")

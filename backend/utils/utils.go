@@ -2,11 +2,14 @@ package utils
 
 import (
 	"FashOJ_Backend/global"
+	"FashOJ_Backend/models"
 	"crypto/rand"
 	"errors"
+	"os"
+	"time"
+
 	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
-	"time"
 )
 
 // GenJwt generates a JWT token for the given username.
@@ -16,7 +19,7 @@ func GenJwt(username string) (string, error) {
 		"username":       username,
 		"expirationTime": time.Now().Add(global.ValidTime).Unix(),
 	})
-	// Use the token object's SignedString method to get the complete signed token string 
+	// Use the token object's SignedString method to get the complete signed token string
 	signedToken, err := token.SignedString(global.JwtKey)
 	return "Bearer " + signedToken, err
 }
@@ -68,11 +71,37 @@ HAC (Hash based Message Authentication Code) is a message authentication code ba
 used to verify the integrity and authenticity of messages.
 */
 // GenerateHMACKey generates a random 256-bit key for HMAC signing.
-func GenerateHMACKey() ([]byte, error) {
-	key := make([]byte, 32) // 256-bit key.
+func generateHMACKey() ([]byte, error) {
+	key := make([]byte, 32)  // 256-bit key.
 	_, err := rand.Read(key) // Fill key with random bytes.
 	if err != nil {
 		return []byte{}, err
 	}
 	return key, nil
+}
+
+func SetJwtKey() {
+	keyString := os.Getenv("JWT_SECRET")
+	if keyString == "" {
+		key, err := generateHMACKey()
+		if err != nil {
+			panic(err)
+		}
+		global.JwtKey = key
+	} else {
+		global.JwtKey = []byte(keyString)
+	}
+}
+
+//Auto Migrate all models
+func AutoMigrate() {
+	if err := global.DB.AutoMigrate(
+		&models.User{},
+		&models.Limit{},
+		&models.Problem{},
+		&models.Testcase{},
+	); err != nil {
+		global.Logger.Panic(err.Error())
+		panic(err)
+	}
 }

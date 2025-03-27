@@ -11,13 +11,13 @@ func main(){
 	config.InitConfig()
 	utils.InitLogger()
 
+	//Migrate all models at start
+	utils.AutoMigrate()
+
 	defer global.Logger.Sync()
 	global.Logger.Info("InitConfig and Logger")	
-	var err error
-	if global.JwtKey,err = utils.GenerateHMACKey(); err != nil{
-		global.Logger.Errorf("Error at generate jwt key Error: %v",err)
-		return
-	}
+	
+	utils.SetJwtKey()
 
 	r:=router.SetupRouter()
 	r.Run(":"+config.FashOJConfig.FashOJApp.Port)
