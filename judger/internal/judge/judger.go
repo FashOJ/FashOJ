@@ -1,6 +1,9 @@
 package judge
 
-import "fmt"
+import (
+	"fmt"
+	"os"
+)
 
 func Judge(sourcePath, execPath, inputPath, answerPath string, timeLimit int) string {
 	if err := Compile(sourcePath, execPath); err != nil {
@@ -14,6 +17,8 @@ func Judge(sourcePath, execPath, inputPath, answerPath string, timeLimit int) st
 	if err != nil {
 		return fmt.Sprintf("答案错误: %v", err)
 	}
+
+	defer os.Remove(execPath)
 
 	if match {
 		return "ACCEPTED"
