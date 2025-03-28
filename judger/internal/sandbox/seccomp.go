@@ -9,9 +9,6 @@ import (
 
 func ApplySeccomp() error {
 	filter, err := seccomp.NewFilter(seccomp.ActKillThread)
-
-	fmt.Println("Fuck1")
-
 	if err != nil {
 		return fmt.Errorf("Create seccomp Failed: %v", err)
 	}
@@ -27,14 +24,10 @@ func ApplySeccomp() error {
 		syscall.SYS_ARCH_PRCTL,
 		syscall.SYS_CLOSE,
 	}
-
-	fmt.Println("Fuck2")
-
 	for _, sc := range allowedSyscalls {
 		if err := filter.AddRule(seccomp.ScmpSyscall(sc), seccomp.ActAllow); err != nil {
-			return fmt.Errorf("Add seccomp rule failed: %v", err)
+			return fmt.Errorf("添加 seccomp 规则失败: %v", err)
 		}
 	}
-	fmt.Println("Fuck3")
 	return filter.Load()
 }
