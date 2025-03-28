@@ -26,15 +26,10 @@ func Run(executablePath, inputPath string, timeLimit int, memoryLimit int64) (st
 		return "", fmt.Errorf("seccomp Failed: %v", err)
 	}
 	timer := time.AfterFunc(time.Duration(timeLimit)*time.Millisecond, func() {
-		if cmd.Process != nil {
-			cmd.Process.Kill()  // 增加空指针检查
-			cmd.Process.Release() // 确保释放系统资源
-		}
+		cmd.Process.Kill()
 	})
-	defer timer.Stop()  // 使用defer确保定时器停止
-
 	err = cmd.Run()
-	// 移除原来的timer.Stop()
+	timer.Stop()
 	if err != nil {
 		return "", fmt.Errorf("Run Failed: %v, Output: %s", err, output.String())
 	}
