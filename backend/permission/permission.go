@@ -25,7 +25,7 @@ const (
 		ModifyPermission
 )
 
-func HasPermission(user *models.User, permission uint32) bool {
+func HasPermission(user models.User, permission uint32) bool {
 	return (user.Permission | permission) != 0
 }
 

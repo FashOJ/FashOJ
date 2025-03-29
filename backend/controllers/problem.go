@@ -25,7 +25,7 @@ import (
 func CreateProblem(ctx *gin.Context) {
 
 	// Check if the user has permission to create or update problems
-	if permission.HasPermission(ctx.Value("user").(*models.User), permission.CreateProblem) {
+	if permission.HasPermission(ctx.Value("user").(models.User), permission.CreateProblem) {
 		ctx.JSON(http.StatusUnauthorized, gin.H{
 			"Error": "You don't have permission to create",
 		})
@@ -64,7 +64,7 @@ func CreateProblem(ctx *gin.Context) {
 func ModifyProblem(ctx *gin.Context) {
 	// Check if the user has permission to create or update problems
 	// if ctx.Value("user").(models.User).Permission != global.AdminUser {
-	if permission.HasPermission(ctx.Value("user").(*models.User), permission.ModifyProblem) {
+	if permission.HasPermission(ctx.Value("user").(models.User), permission.ModifyProblem) {
 		ctx.JSON(http.StatusUnauthorized, gin.H{
 			"Error": "You don't have permission to modify problem",
 		})

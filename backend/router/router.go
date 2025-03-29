@@ -31,5 +31,11 @@ func SetupRouter() *gin.Engine {
 	normalSubmit := fashOJBackendRouter.Group("/api/submit")
 	normalSubmit.Use(middlewares.AuthMiddleware())
 
+
+	announcement := fashOJBackendRouter.Group("/api/announcement")
+	announcement.Use(middlewares.AuthMiddleware())
+	{
+		announcement.POST("",controllers.CreateAnnouncement)
+	}
 	return fashOJBackendRouter
 }

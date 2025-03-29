@@ -36,7 +36,7 @@ func ParseJwt(tokenString string) (string, error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (any, error) {
 		// Check the signing method and return the key used to sign the token.
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, errors.New("Unexcept signing method")
+			return nil, errors.New("unexcept signing method")
 		}
 		return global.JwtKey, nil
 	})
@@ -47,7 +47,7 @@ func ParseJwt(tokenString string) (string, error) {
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid { // Check if the token is valid and the claims are valid.
 		username, ok := claims["username"].(string)
 		if !ok {
-			return "", errors.New("Username claim is not a string")
+			return "", errors.New("username claim is not a string")
 		}
 		return username, nil
 	}
@@ -100,6 +100,7 @@ func AutoMigrate() {
 		&models.Limit{},
 		&models.Problem{},
 		&models.Testcase{},
+		&models.Announcement{},
 	); err != nil {
 		global.Logger.Panic(err.Error())
 		panic(err)

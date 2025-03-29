@@ -29,7 +29,7 @@ func ChangePermission(ctx *gin.Context) {
 	}
 
 	// Check if the user is has permission to change others permission.
-	if permission.HasPermission(&user, permission.ModifyPermission) {
+	if permission.HasPermission(user, permission.ModifyPermission) {
 		var userOldPermission models.User
 
 		// Check if the user exists.
