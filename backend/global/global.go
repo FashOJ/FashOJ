@@ -8,17 +8,6 @@ import (
 	"gorm.io/gorm"
 )
 
-// NOTE WARNING!!!
-// Not the end code,maybe will change to iota
-const MinUserPermissionCode = -1 // admin Permission Code
-const MaxUserPermissionCode = 0  // normal Permission Code
-
-// User Permission Code
-const (
-	AdminUser = iota - 1
-	NormalUser
-)
-
 const ValidTime = 3 * 24 * time.Hour
 
 // JwtKey is the key used to sign JWT tokens

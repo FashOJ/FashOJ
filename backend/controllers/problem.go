@@ -3,16 +3,18 @@ package controllers
 import (
 	"FashOJ_Backend/global"
 	"FashOJ_Backend/models"
+	"FashOJ_Backend/permission"
 	"archive/zip"
 	"bytes"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"io"
 	"net/http"
 	"os"
 	"path"
 	"regexp"
 	"strings"
+
+	"github.com/gin-gonic/gin"
 )
 
 // CreateProblem creates a new problem in the database.
@@ -23,9 +25,9 @@ import (
 func CreateProblem(ctx *gin.Context) {
 
 	// Check if the user has permission to create or update problems
-	if ctx.Value("user").(models.User).Permission != global.AdminUser {
+	if permission.HasPermission(ctx.Value("user").(*models.User), permission.CreateProblem) {
 		ctx.JSON(http.StatusUnauthorized, gin.H{
-			"Error": "You don't have permission to create or updata problem",
+			"Error": "You don't have permission to create",
 		})
 		return
 	}
@@ -60,63 +62,63 @@ func CreateProblem(ctx *gin.Context) {
 // If the problem is successfully modified, it returns a 200 OK response.
 // If there is an error, it returns an appropriate error response.
 func ModifyProblem(ctx *gin.Context) {
-    // Check if the user has permission to create or update problems
-    if ctx.Value("user").(models.User).Permission != global.AdminUser {
-        ctx.JSON(http.StatusUnauthorized, gin.H{
-            "Error": "You don't have permission to modify problem",
-        })
-        return
-    }
+	// Check if the user has permission to create or update problems
+	// if ctx.Value("user").(models.User).Permission != global.AdminUser {
+	if permission.HasPermission(ctx.Value("user").(*models.User), permission.ModifyProblem) {
+		ctx.JSON(http.StatusUnauthorized, gin.H{
+			"Error": "You don't have permission to modify problem",
+		})
+		return
+	}
 
-    // Get the problem ID from the URL parameter
-    problemID := ctx.Param("pid")
-    if problemID == "" {
-        ctx.JSON(http.StatusBadRequest, gin.H{
-            "Error": "You don't have a valid Problem ID",
-        })
-        return
-    }
+	// Get the problem ID from the URL parameter
+	problemID := ctx.Param("pid")
+	if problemID == "" {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"Error": "You don't have a valid Problem ID",
+		})
+		return
+	}
 
-    // Find the existing problem in the database
-    var problem models.Problem
-    if err := global.DB.Where("problem_id = ?", problemID).First(&problem).Error; err != nil {
-        ctx.JSON(http.StatusNotFound, gin.H{
-            "Error": "Problem not found",
-        })
-        return
-    }
+	// Find the existing problem in the database
+	var problem models.Problem
+	if err := global.DB.Where("problem_id = ?", problemID).First(&problem).Error; err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{
+			"Error": "Problem not found",
+		})
+		return
+	}
 
-    // Bind the updated problem data from the request body
-    var updatedProblem models.Problem
-    if err := ctx.ShouldBindJSON(&updatedProblem); err != nil {
-        ctx.JSON(http.StatusBadRequest, gin.H{
-            "Error": err.Error(),
-        })
-        return
-    }
+	// Bind the updated problem data from the request body
+	var updatedProblem models.Problem
+	if err := ctx.ShouldBindJSON(&updatedProblem); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"Error": err.Error(),
+		})
+		return
+	}
 
-    // Update the problem fields
-    problem.Title = updatedProblem.Title
-    problem.Content = updatedProblem.Content
-    problem.Difficulty = updatedProblem.Difficulty
+	// Update the problem fields
+	problem.Title = updatedProblem.Title
+	problem.Content = updatedProblem.Content
+	problem.Difficulty = updatedProblem.Difficulty
 	problem.Author = ctx.Value("user").(models.User)
 	problem.AuthorID = problem.Author.ID
 	problem.Limit = updatedProblem.Limit
 
-    // Save the updated problem to the database
-    if err := global.DB.Save(&problem).Error; err != nil {
-        ctx.JSON(http.StatusInternalServerError, gin.H{
-            "Error": err.Error(),
-        })
-        return
-    }
-    ctx.JSON(http.StatusOK, gin.H{
-        "Status": "Success",
-    })
+	// Save the updated problem to the database
+	if err := global.DB.Save(&problem).Error; err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"Error": err.Error(),
+		})
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{
+		"Status": "Success",
+	})
 }
 
 func UploadTestcase(ctx *gin.Context) {
-
 
 	// Get the file from the request.
 	uploadedFile, err := ctx.FormFile("file")
@@ -154,7 +156,6 @@ func UploadTestcase(ctx *gin.Context) {
 		})
 		return
 	}
-
 
 	// Classify the test cases into input and output files.
 	// Input files should have a ".in" extension, and output files should have a ".out" extension.

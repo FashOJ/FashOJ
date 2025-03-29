@@ -9,6 +9,6 @@ type User struct {
 	Username   string `gorm:"unique"`
 	Password   string
 	Email      string
-	Permission int       `gorm:"default:0"`                          
+	Permission uint32       `gorm:"default:0"`                          
 	Problems   []Problem `json:"problems" gorm:"foreignKey:AuthorID"` // one-to-many relationship
 }
