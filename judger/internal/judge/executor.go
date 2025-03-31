@@ -6,9 +6,16 @@ import (
 	"os"
 	"os/exec"
 	"time"
+	"FashOJ/Judger/internal/sandbox"
 )
 
 func Run(executablePath, inputPath string, timeLimit int) (string, error) {
+	// 设置资源限制
+	err := sandbox.SetLimits(timeLimit/1000, 512*1024*1024, 1024*1024, 1) // 512MB 内存, 64KB 文件, 10个进程
+	if err != nil {
+		return "", fmt.Errorf("资源限制失败: %v", err)
+	}
+
 	cmd := exec.Command(executablePath)
 	input, err := os.ReadFile(inputPath)
 	if err != nil {
