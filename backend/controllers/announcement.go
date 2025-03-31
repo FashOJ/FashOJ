@@ -3,6 +3,7 @@ package controllers
 import (
 	"FashOJ_Backend/global"
 	"FashOJ_Backend/models"
+	"FashOJ_Backend/permission"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -10,6 +11,11 @@ import (
 
 func CreateAnnouncement(ctx *gin.Context) {
 	var announcement models.Announcement
+
+	if !permission.HasPermission(ctx.Value("user").(models.User),permission.CreateAnnouncement){
+		ctx.JSON(http.StatusForbidden,gin.H{"Error":"Insufficient permissions"})
+		return
+	}
 
 	if err := ctx.ShouldBindJSON(&announcement); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"Error": "wrong format"})
