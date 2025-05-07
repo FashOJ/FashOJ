@@ -83,14 +83,14 @@ func (s *SandboxConfig) Run() (*SandboxResult, error) {
 	startTime := time.Now()
 	err = cmd.Start()
 	if err != nil {
-		return nil, fmt.Errorf("启动程序失败: %v", err)
+		return nil, fmt.Errorf("cnm启动程序失败: %v", err)
 	}
 	
 	pid := cmd.Process.Pid
 	
 	if err := setMemoryLimit(pid, s.MemoryLimit); err != nil {
 		cmd.Process.Kill()
-		return nil, fmt.Errorf("设置内存限制失败: %v", err)
+		return nil, fmt.Errorf("setting failed: %v", err)
 	}
 	
 	done := make(chan error)

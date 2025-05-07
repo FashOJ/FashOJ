@@ -4,17 +4,19 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
 )
 
-// Compile 负责编译 C++ 代码
-func CompileCpp17(sourcePath, outputPath string) error {
-	cmd := exec.Command("g++", sourcePath, "-o", outputPath, "-O2", "-std=c++17", "-Wall", "-Wextra")
-	cmd.Stderr = os.Stderr // 捕获编译错误
+func CompileCpp17(sourcePath, execPath string) error {
+	execDir := filepath.Dir(execPath)
+	if err := os.MkdirAll(execDir, 0755); err != nil {
+		return fmt.Errorf("mkdir failed: %v", err)
+	}
 
-	err := cmd.Run()
+	cmd := exec.Command("g++", "-std=c++17", sourcePath, "-o", execPath)
+	output, err := cmd.CombinedOutput()
 	if err != nil {
-		return fmt.Errorf("编译失败: %v", err)
+		return fmt.Errorf("编译失败: %v\n%s", err, string(output))
 	}
 	return nil
 }
-

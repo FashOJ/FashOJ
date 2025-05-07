@@ -1,30 +1,32 @@
 package judge
 
 import (
-	"bytes"
+	"FashOJ/Judger/internal/sandbox"
 	"fmt"
-	"os"
-	"os/exec"
-	"time"
+	// "os"
 )
 
 func Run(executablePath, inputPath string, timeLimit int) (string, error) {
-	cmd := exec.Command(executablePath)
-	input, err := os.ReadFile(inputPath)
+	sandboxConfig := sandbox.NewSandbox()
+	sandboxConfig.ExecPath = executablePath
+	sandboxConfig.InputPath = inputPath
+	sandboxConfig.TimeLimit = timeLimit
+	
+	result, err := sandboxConfig.Run()
 	if err != nil {
-		return "", fmt.Errorf("读取输入文件失败: %v", err)
+		return "", fmt.Errorf("沙箱运行失败: %v", err)
 	}
-	cmd.Stdin = bytes.NewReader(input)
-	var output bytes.Buffer
-	cmd.Stdout = &output
-	cmd.Stderr = &output
-	timer := time.AfterFunc(time.Duration(timeLimit)*time.Millisecond, func() {
-		cmd.Process.Kill()
-	})
-	err = cmd.Run()
-	timer.Stop()
-	if err != nil {
-		return "", fmt.Errorf("运行失败: %v, 输出: %s", err, output.String())
+	
+	switch result.Status {
+	case "Accepted":
+		return result.Output, nil
+	case "Time Limit Exceeded":
+		return "", fmt.Errorf("时间超限")
+	case "Memory Limit Exceeded":
+		return "", fmt.Errorf("内存超限")
+	case "Runtime Error":
+		return "", fmt.Errorf("运行时错误: %s", result.ErrorOutput)
+	default:
+		return "", fmt.Errorf("系统错误: %s", result.ErrorOutput)
 	}
-	return output.String(), nil
 }
