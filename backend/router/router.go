@@ -8,6 +8,12 @@ import (
 
 func SetupRouter() *gin.Engine {
 	fashOJBackendRouter := gin.Default()
+	fashOJBackendRouter.Use(middlewares.Cors())
+
+	noAuth := fashOJBackendRouter.Group("")
+	{
+		noAuth.GET("/api/announcement/latest",controllers.GetLatestAnnouncement)
+	}
 
 	auth := fashOJBackendRouter.Group("/api/auth")
 	{

@@ -1,7 +1,7 @@
 <template>
   <nav class="navbar navbar-expand-lg bg-body-tertiary">
     <div class="container">
-      <a class="navbar-brand" href="#">Fash OJ</a>
+      <a class="navbar-brand" href="#">FashOJ</a>
       <button
         class="navbar-toggler"
         type="button"
@@ -15,14 +15,20 @@
       </button>
       <div class="collapse navbar-collapse" id="navbarText">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-          <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="#">Home</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#">Problems</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#">Contest</a>
+          <li
+            class="nav-item"
+            v-for="(navItem, index) in navItems"
+            :key="index"
+            @click="setActive(index)"
+          >
+            <a
+              class="nav-link"
+              :class="{ active: navItem.isActive }"
+              :aria-current="navItem.isActive ? 'page' : undefined"
+              href="#"
+            >
+              {{ navItem.text }}
+            </a>
           </li>
         </ul>
         <span class="navbar-text">
@@ -51,12 +57,25 @@
 <script setup lang="ts">
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap/dist/js/bootstrap.min.js'
+import { ref } from 'vue'
+
+const navItems = ref([
+  { text: 'Home', isActive: true },
+  { text: 'Problems', isActive: false },
+  { text: 'Contest', isActive: false },
+  {text:'Accouncement',isActive:false}
+])
+
+const setActive = (index: number) => {
+  navItems.value.forEach((item) => (item.isActive = false))
+  navItems.value[index].isActive = true
+}
 </script>
 
 <style scoped>
-
 .navbar {
   background-color: #fff !important;
+  padding: 3px 0px;
 }
 
 .container {
@@ -65,5 +84,14 @@ import 'bootstrap/dist/js/bootstrap.min.js'
 
 .dropdown {
   list-style: none;
+}
+
+.nav-item {
+  margin: 0 25px;
+  cursor: pointer;
+}
+
+.active {
+  box-shadow: 0 3px #17a7cf;
 }
 </style>
