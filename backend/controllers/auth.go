@@ -4,8 +4,10 @@ import (
 	"FashOJ_Backend/global"
 	"FashOJ_Backend/models"
 	"FashOJ_Backend/utils"
-	"github.com/gin-gonic/gin"
+	"fmt"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 // Login is the controller for the login route.
@@ -18,7 +20,7 @@ func Login(ctx *gin.Context) {
 	// Bind the request body to the UserRequestInput struct
 	if err := ctx.ShouldBindJSON(&UserRequestInput); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"Error": err,
+			"message": err,
 		})
 		return
 	}
@@ -27,7 +29,7 @@ func Login(ctx *gin.Context) {
 	var foundUser models.User
 	if err := global.DB.Where("username = ?", UserRequestInput.Username).First(&foundUser).Error; err != nil {
 		ctx.JSON(http.StatusUnauthorized, gin.H{
-			"Error": "wrong password or username",
+			"message": "wrong password or username",
 		})
 		return
 	}
@@ -35,7 +37,7 @@ func Login(ctx *gin.Context) {
 	// Check the password
 	if !utils.CheckPwd(UserRequestInput.Password, foundUser.Password) {
 		ctx.JSON(http.StatusUnauthorized, gin.H{
-			"Error": "wrong password or username",
+			"message": "wrong password or username",
 		})
 		return
 	}
@@ -45,13 +47,14 @@ func Login(ctx *gin.Context) {
 	if err != nil {
 		global.Logger.Error(err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"Error": "server error",
+			"message": "server error",
 		})
 	}
 
 	// Return the token
 	ctx.JSON(http.StatusOK, gin.H{
-		"Token": token,
+		"message": "success",
+		"token":   token,
 	})
 }
 
@@ -64,7 +67,19 @@ func Register(ctx *gin.Context) {
 	var NewUserRequest models.User
 	if err := ctx.ShouldBindJSON(&NewUserRequest); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"Error": err,
+			"message": err,
+		})
+		return
+	}
+
+	var findUser models.User
+	if err := global.DB.Where("username = ?", NewUserRequest.Username).First(&findUser).Error; err != nil {
+		fmt.Println("RUN")
+		global.Logger.Error(err.Error())
+	} else {
+		fmt.Println(findUser.Username)
+		ctx.JSON(http.StatusOK, gin.H{
+			"message": "用户名重复",
 		})
 		return
 	}
@@ -74,7 +89,7 @@ func Register(ctx *gin.Context) {
 	if err != nil {
 		global.Logger.Error(err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"Error": "server error",
+			"message": "server error",
 		})
 	}
 
@@ -84,7 +99,7 @@ func Register(ctx *gin.Context) {
 	if err != nil {
 		global.Logger.Error(err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"Error": "server error",
+			"message": "server error",
 		})
 		return
 	}
@@ -96,13 +111,14 @@ func Register(ctx *gin.Context) {
 	if err := global.DB.Create(&NewUserRequest).Error; err != nil {
 		global.Logger.Error(err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"Error": "server error",
+			"message": "server error",
 		})
 		return
 	}
 
 	// Return the token
 	ctx.JSON(http.StatusOK, gin.H{
-		"Token": token,
+		"message": "success",
+		"token":   token,
 	})
 }

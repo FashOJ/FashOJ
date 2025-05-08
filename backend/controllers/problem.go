@@ -27,7 +27,7 @@ func CreateProblem(ctx *gin.Context) {
 	// Check if the user has permission to create or update problems
 	if permission.HasPermission(ctx.Value("user").(models.User), permission.CreateProblem) {
 		ctx.JSON(http.StatusUnauthorized, gin.H{
-			"Error": "You don't have permission to create",
+			"message": "You don't have permission to create",
 		})
 		return
 	}
@@ -36,7 +36,7 @@ func CreateProblem(ctx *gin.Context) {
 	var problem models.Problem
 	if err := ctx.ShouldBindJSON(&problem); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"Error": err.Error(),
+			"message": err.Error(),
 		})
 		return
 	}
@@ -47,12 +47,12 @@ func CreateProblem(ctx *gin.Context) {
 	// Save the problem to the database.
 	if err := global.DB.Save(&problem).Error; err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"Error": err.Error(),
+			"message": err.Error(),
 		})
 		return
 	}
 	ctx.JSON(http.StatusOK, gin.H{
-		"Status": "Success",
+		"message": "success",
 	})
 }
 
@@ -66,7 +66,7 @@ func ModifyProblem(ctx *gin.Context) {
 	// if ctx.Value("user").(models.User).Permission != global.AdminUser {
 	if permission.HasPermission(ctx.Value("user").(models.User), permission.ModifyProblem) {
 		ctx.JSON(http.StatusUnauthorized, gin.H{
-			"Error": "You don't have permission to modify problem",
+			"message": "You don't have permission to modify problem",
 		})
 		return
 	}
@@ -75,7 +75,7 @@ func ModifyProblem(ctx *gin.Context) {
 	problemID := ctx.Param("pid")
 	if problemID == "" {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"Error": "You don't have a valid Problem ID",
+			"message": "You don't have a valid Problem ID",
 		})
 		return
 	}
@@ -84,7 +84,7 @@ func ModifyProblem(ctx *gin.Context) {
 	var problem models.Problem
 	if err := global.DB.Where("problem_id = ?", problemID).First(&problem).Error; err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
-			"Error": "Problem not found",
+			"message": "Problem not found",
 		})
 		return
 	}
@@ -93,7 +93,7 @@ func ModifyProblem(ctx *gin.Context) {
 	var updatedProblem models.Problem
 	if err := ctx.ShouldBindJSON(&updatedProblem); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"Error": err.Error(),
+			"message": err.Error(),
 		})
 		return
 	}
@@ -109,12 +109,12 @@ func ModifyProblem(ctx *gin.Context) {
 	// Save the updated problem to the database
 	if err := global.DB.Save(&problem).Error; err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"Error": err.Error(),
+			"message": err.Error(),
 		})
 		return
 	}
 	ctx.JSON(http.StatusOK, gin.H{
-		"Status": "Success",
+		"message": "success",
 	})
 }
 
@@ -124,7 +124,7 @@ func UploadTestcase(ctx *gin.Context) {
 	uploadedFile, err := ctx.FormFile("file")
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"Error": err.Error(),
+			"message": err.Error(),
 		})
 		return
 	}
@@ -133,7 +133,7 @@ func UploadTestcase(ctx *gin.Context) {
 	tempZipFilePath := path.Join(global.SystemTempFolder, uploadedFile.Filename)
 	if err := ctx.SaveUploadedFile(uploadedFile, tempZipFilePath); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"Error": err.Error(),
+			"message": err.Error(),
 		})
 		return
 	}
@@ -142,7 +142,7 @@ func UploadTestcase(ctx *gin.Context) {
 	zipFile, err := zip.OpenReader(tempZipFilePath)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"Error": err.Error(),
+			"message": err.Error(),
 		})
 		return
 	}
@@ -152,7 +152,7 @@ func UploadTestcase(ctx *gin.Context) {
 	problemID := ctx.Param("pid")
 	if problemID == "" {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"Error": "Problem ID is required",
+			"message": "Problem ID is required",
 		})
 		return
 	}
@@ -164,7 +164,7 @@ func UploadTestcase(ctx *gin.Context) {
 	for _, file := range zipFile.File {
 		if !isTestcaseFile(file.Name) {
 			ctx.JSON(http.StatusBadRequest, gin.H{
-				"Error": "File format error: " + file.Name + "\nShould be like: 1.in 1.out 2.in 2.out ...",
+				"message": "File format error: " + file.Name + "\nShould be like: 1.in 1.out 2.in 2.out ...",
 			})
 			return
 		}
@@ -187,7 +187,7 @@ func UploadTestcase(ctx *gin.Context) {
 		infile, err := testCasesInputs[name].Open()
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
-				"Error": err.Error(),
+				"message": err.Error(),
 			})
 			return
 		}
@@ -197,14 +197,14 @@ func UploadTestcase(ctx *gin.Context) {
 		output, ok := testCaseOutputs[name]
 		if !ok {
 			ctx.JSON(http.StatusBadRequest, gin.H{
-				"Error": "The corresponding output file is missing: " + name + ".out",
+				"message": "The corresponding output file is missing: " + name + ".out",
 			})
 			return
 		}
 		outfile, err := output.Open()
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
-				"Error": err.Error(),
+				"message": err.Error(),
 			})
 			return
 		}
@@ -218,7 +218,7 @@ func UploadTestcase(ctx *gin.Context) {
 		outputFilePath := path.Join("file", outputFileName)
 		if err := os.MkdirAll("file", os.ModePerm); err != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{
-				"Error": err.Error(),
+				"message": err.Error(),
 			})
 			return
 		}
@@ -227,14 +227,14 @@ func UploadTestcase(ctx *gin.Context) {
 		inTestCaseContent, err := io.ReadAll(infile)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{
-				"Error": err.Error(),
+				"message": err.Error(),
 			})
 			return
 		}
 		outTestCaseContent, err := io.ReadAll(outfile)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{
-				"Error": err.Error(),
+				"message": err.Error(),
 			})
 			return
 		}
@@ -242,13 +242,13 @@ func UploadTestcase(ctx *gin.Context) {
 		// Save the input and output files to the file directory.
 		if err := saveFile(bytes.NewReader(inTestCaseContent), inputFilePath); err != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{
-				"Error": err.Error(),
+				"message": err.Error(),
 			})
 			return
 		}
 		if err := saveFile(bytes.NewReader(outTestCaseContent), outputFilePath); err != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{
-				"Error": err.Error(),
+				"message": err.Error(),
 			})
 			return
 		}
@@ -267,14 +267,14 @@ func UploadTestcase(ctx *gin.Context) {
 	var problem models.Problem
 	if err := global.DB.Where("problem_id = ?", problemID).First(&problem).Error; err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"Error": err.Error(),
+			"message": err.Error(),
 		})
 		return
 	}
 	problem.Testcase = testcases
 	if err := global.DB.Save(&problem).Error; err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"Error": err.Error(),
+			"message": err.Error(),
 		})
 		return
 	}
@@ -286,12 +286,12 @@ func UploadTestcase(ctx *gin.Context) {
 	*/
 	if err := os.Remove(tempZipFilePath); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"Error": err.Error(),
+			"message": err.Error(),
 		})
 		return
 	}
 	ctx.JSON(http.StatusOK, gin.H{
-		"Status": "Success",
+		"message": "success",
 	})
 }
 

@@ -23,7 +23,7 @@ func ChangePermission(ctx *gin.Context) {
 	if err := ctx.ShouldBindJSON(&UserPatchPermission); err != nil {
 		global.Logger.Error(err)
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"Error": err,
+			"message": err,
 		})
 		return
 	}
@@ -35,7 +35,7 @@ func ChangePermission(ctx *gin.Context) {
 		// Check if the user exists.
 		if err := global.DB.Where("username = ?", UserPatchPermission.Username).First(&userOldPermission).Error; err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
-				"Error": "no such User or" + err.Error(),
+				"message": "no such User or" + err.Error(),
 			})
 			return
 		}
@@ -43,7 +43,7 @@ func ChangePermission(ctx *gin.Context) {
 		// Check if the Permission code is valid.
 		if permission.IsVaild(UserPatchPermission.Permission) {
 			ctx.JSON(http.StatusBadRequest, gin.H{
-				"Error": "wrong right code",
+				"message": "wrong right code",
 			})
 			return
 		}
@@ -52,7 +52,7 @@ func ChangePermission(ctx *gin.Context) {
 		userOldPermission.Permission = UserPatchPermission.Permission
 		if err := global.DB.Save(&userOldPermission).Error; err != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{
-				"Error": "wrong",
+				"message": "wrong",
 			})
 			global.Logger.Errorln(err.Error())
 			return
@@ -60,13 +60,13 @@ func ChangePermission(ctx *gin.Context) {
 
 		// Return success.
 		ctx.JSON(http.StatusOK, gin.H{
-			"Status": "success",
+			"message": "success",
 		})
 		return
 	} else {
 		// If the user is not an admin, return unauthorized.
 		ctx.JSON(http.StatusUnauthorized, gin.H{
-			"Error": "You are not admin, and have no permission to patch.",
+			"message": "You are not admin, and have no permission to patch.",
 		})
 		return
 	}
