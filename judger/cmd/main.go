@@ -6,10 +6,11 @@ import (
 )
 
 func main() {
-	
 	sourceCPP := "../testTEMP/sourceCode/testCPP.cpp"
-	// sourcePython := "../testTEMP/sourceCode/testPython.cpp"
-	exec := "../testTEMP/execTemp/test"
+	// exec := "../testTEMP/execTemp/test"
+	// exec := "/home/lingbou/WorkSpace/FashOJ/judger/testTEMP/execTemp/test" // shit ！！！，记得后面把相对路径全换成绝对路径
+	exec := "/home/lingbou/FashOJ/judger/testTEMP/execTemp/test" 
+	///home/lingbou/WorkSpace/FashOJ/judger/testTEMP
 	input := "../testTEMP/testCase/input1.txt"
 	answer := "../testTEMP/outputCase/output1.txt"
 	timeLimit := 1000 // 1s
