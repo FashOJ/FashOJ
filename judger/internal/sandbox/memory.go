@@ -44,7 +44,8 @@ func setMemoryLimit(pid int, limitKB int) error {
 
 func getMemoryUsage(pid int) (int, error) {
 	cgroupPath := "/sys/fs/cgroup/memory"
-	sandboxCgroup := filepath.Join(cgroupPath, fmt.Sprintf("fashoj_sandbox_%d", pid))
+	// 修改为与 setMemoryLimit 中相同的大小写
+	sandboxCgroup := filepath.Join(cgroupPath, fmt.Sprintf("FashOJ_sandbox_%d", pid))
 
 	maxUsageBytes, err := os.ReadFile(filepath.Join(sandboxCgroup, "memory.max_usage_in_bytes"))
 	if err != nil {
@@ -63,7 +64,7 @@ func getMemoryUsage(pid int) (int, error) {
 // 清理
 func cleanupCgroup(pid int) error {
 	cgroupPath := "/sys/fs/cgroup/memory"
-	sandboxCgroup := filepath.Join(cgroupPath, fmt.Sprintf("fashoj_sandbox_%d", pid))
+	sandboxCgroup := filepath.Join(cgroupPath, fmt.Sprintf("FashOJ_sandbox_%d", pid))
 
 	if err := os.WriteFile(
 		filepath.Join(cgroupPath, "tasks"),

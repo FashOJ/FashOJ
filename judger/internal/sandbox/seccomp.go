@@ -3,11 +3,17 @@ package sandbox
 import (
 	"fmt"
 	"syscall"
-	// "golang.org/x/sys/unix"
+
+	"golang.org/x/sys/unix"
 )
 
 func setupSeccomp() error {
 	// 没办法啊没办法啊，草泥马能不能正常点
+	// seccomp -》 SECCOMP_MODE_STRICT 模式
+	// read, write, exit, sigreturn 系统调用
+	if err := unix.Prctl(unix.PR_SET_SECCOMP, 1, 0, 0, 0); err != nil {
+		return fmt.Errorf("seccomp fuck failed: %v", err)
+	}
 	return nil
 }
 
