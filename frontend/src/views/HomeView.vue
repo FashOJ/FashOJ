@@ -12,7 +12,7 @@ const announcement: Announcement = reactive({ title: null, abstract: null })
 
 const fetchLatestPost = () => {
     axios.get('http://localhost:3000/api/announcement/latest').then((res) => {
-        if (res.data.status === 'success') {
+        if (res.data.message === 'success') {
             announcement.abstract = res.data.data.abstract
             announcement.title = res.data.data.title
         }
