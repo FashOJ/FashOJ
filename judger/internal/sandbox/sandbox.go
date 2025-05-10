@@ -83,10 +83,8 @@ func (s *SandboxConfig) Run() (*SandboxResult, error) {
 		cmd.Stdin = input
 	}
 
-	// cmd.Stdout = tempOutput
-	// cmd.Stderr = tempError
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stdin
+	cmd.Stdout = tempOutput
+	cmd.Stderr = tempError
 
 	cmd.SysProcAttr = &syscall.SysProcAttr{}
 
