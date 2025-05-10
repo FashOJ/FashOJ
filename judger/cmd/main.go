@@ -13,7 +13,7 @@ func main() {
 	///home/lingbou/WorkSpace/FashOJ/judger/testTEMP
 	input := "../testTEMP/testCase/input1.txt"
 	answer := "../testTEMP/outputCase/output1.txt"
-	timeLimit := 1000 // 1s
+	timeLimit := 200000 // 1s
 
 	result := judge.Judge(sourceCPP, exec, input, answer, timeLimit)
 	fmt.Println("评测结果:", result)
