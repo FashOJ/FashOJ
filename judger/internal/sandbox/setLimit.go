@@ -196,7 +196,9 @@ func (c *cgroup) CheckOom() (bool, error) {
 			return false,fmt.Errorf("read oom event failed: %v",err)
 		}
 
-		cnt ,err:= strconv.Atoi(string(cntByte))
+		// 逆天末尾换行符
+		fuckendl := strings.TrimSpace(string(cntByte))
+		cnt ,err:= strconv.Atoi(string(fuckendl))
 		if err != nil {
 			return false,fmt.Errorf("read oom event failed: %v",err)
 		}

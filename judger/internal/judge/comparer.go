@@ -7,6 +7,7 @@ import (
 )
 
 func Compare(output, answerPath string) (bool, error) {
+	fmt.Println(output)
 	expected, err := os.ReadFile(answerPath)
 	if err != nil {
 		return false, fmt.Errorf("读取outputCase失败: %v", err)
