@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import 'bootstrap/dist/css/bootstrap.min.css'
+import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap/dist/js/bootstrap.min.js'
 import { useUserStore } from '@/stores/user'
 import { ref } from 'vue'
@@ -7,18 +7,13 @@ import { ref } from 'vue'
 const userStore = useUserStore()
 
 const navItems = ref([
-    { text: 'Home', isActive: true },
-    { text: 'Problems', isActive: false },
-    { text: 'Contest', isActive: false },
-    { text: 'Accouncement', isActive: false },
+    { text: 'Home', isActive: true, name: 'homeView' },
+    // { text: 'Problems', isActive: false,name:"problemView"},
+    // { text: 'Contest', isActive: false,name:"contestView" },
+    { text: 'Announcement', isActive: false, name: 'announcementView' },
 ])
 
-const setActive = (index: number) => {
-    navItems.value.forEach((item) => (item.isActive = false))
-    navItems.value[index].isActive = true
-}
 </script>
-
 
 <template>
     <nav class="navbar navbar-expand-lg bg-body-tertiary">
@@ -41,16 +36,16 @@ const setActive = (index: number) => {
                         class="nav-item"
                         v-for="(navItem, index) in navItems"
                         :key="index"
-                        @click="setActive(index)"
                     >
-                        <a
+                        <router-link
                             class="nav-link"
-                            :class="{ active: navItem.isActive }"
-                            :aria-current="navItem.isActive ? 'page' : undefined"
-                            href="#"
+                            :active_name="navItem.name"
+                            :class="{ active: $route.name === navItem.name }"
+                            :aria-current="$route.name === navItem.name ? 'page' : undefined"
+                            :to="{ name: navItem.name }"
                         >
                             {{ navItem.text }}
-                        </a>
+                        </router-link>
                     </li>
                 </ul>
                 <span class="navbar-text" v-if="userStore.isLogin">
@@ -84,7 +79,6 @@ const setActive = (index: number) => {
         </div>
     </nav>
 </template>
-
 
 <style scoped>
 .navbar {
