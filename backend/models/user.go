@@ -11,4 +11,5 @@ type User struct {
 	Email      string
 	Permission uint32       `gorm:"default:0"`                          
 	Problems   []Problem `json:"problems" gorm:"foreignKey:AuthorID"` // one-to-many relationship
+	Announcement []Announcement
 }

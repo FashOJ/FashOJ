@@ -7,4 +7,5 @@ type Announcement struct {
 	Title string `binding:"required"`
 	Abstract string
 	Content string	 `binding:"required"`
+	UserID uint
 }

@@ -14,8 +14,9 @@ import (
 func CreateAnnouncement(ctx *gin.Context) {
 	var announcement models.Announcement
 	var req dto.CreateAnnouncement
+	var user = ctx.Value("user").(models.User)
 
-	if !permission.HasPermission(ctx.Value("user").(models.User), permission.CreateAnnouncement) {
+	if !permission.HasPermission(user, permission.CreateAnnouncement) {
 		ctx.JSON(http.StatusForbidden, gin.H{"message": "Insufficient permissions"})
 		return
 	}
@@ -29,7 +30,7 @@ func CreateAnnouncement(ctx *gin.Context) {
 	announcement.Content = req.Content
 	announcement.Abstract = abstractContent(&req.Content)
 
-	if err := global.DB.Create(&announcement).Error; err != nil {
+	if err := global.DB.Model(&user).Association("Announcement").Append(&announcement); err != nil {
 		global.Logger.Error(err.Error())
 		ctx.JSON(http.StatusInternalServerError, gin.H{"message": "something was wrong"})
 		return
@@ -37,27 +38,37 @@ func CreateAnnouncement(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"message": "success"})
 }
 
-func GetLatestAnnouncement(ctx *gin.Context){
+// func GetAnnouncement(ctx *gin.Context) {
+// 	page,err := strconv.Atoi(ctx.DefaultQuery("page","1"))
+// 	if err != nil {
+// 		ctx.JSON(http.StatusBadRequest,gin.H{"message":"bad query"})
+// 	}
+// 	size,err := strconv.Atoi(ctx.DefaultQuery("page","10"))
+// 	if err != nil {
+// 		ctx.JSON(http.StatusBadRequest,gin.H{"message":"bad query"})
+// 	}
+// }
+
+func GetLatestAnnouncement(ctx *gin.Context) {
 	var latestAnnouncement models.Announcement
 	var dto dto.LastAnnouncement
-	
-	if err :=global.DB.Last(&latestAnnouncement).Error;err != nil {
+
+	if err := global.DB.Last(&latestAnnouncement).Error; err != nil {
 		global.Logger.Error(err.Error())
-		ctx.JSON(http.StatusInternalServerError,gin.H{"message":"something was wrong"})
+		ctx.JSON(http.StatusInternalServerError, gin.H{"message": "something was wrong"})
 		return
 	}
 
 	dto.Title = latestAnnouncement.Title
 	dto.Abstract = latestAnnouncement.Abstract
 
-	ctx.JSON(http.StatusOK,gin.H{"message":"success","data":dto})
+	ctx.JSON(http.StatusOK, gin.H{"message": "success", "data": dto})
 }
 
-
-func abstractContent(content *string) string{
+func abstractContent(content *string) string {
 	var abstract string
 
-	prefix,_,_:=strings.Cut(*content,"\n\n");
+	prefix, _, _ := strings.Cut(*content, "\n\n")
 	abstract = prefix
 
 	return abstract
