@@ -49,6 +49,7 @@ const register = () => {
             if (data.message === 'success') {
                 user.username = username.value
                 user.token = data.token
+                user.isLogin = true
                 toast.success('注册成功')
                 router.push({ name: 'homeView' })
             } else {

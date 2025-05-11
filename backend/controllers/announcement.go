@@ -30,7 +30,7 @@ func CreateAnnouncement(ctx *gin.Context) {
 	announcement.Abstract = abstractContent(&req.Content)
 
 	if err := global.DB.Create(&announcement).Error; err != nil {
-		global.Logger.Errorf("%v", err.Error())
+		global.Logger.Error(err.Error())
 		ctx.JSON(http.StatusInternalServerError, gin.H{"message": "something was wrong"})
 		return
 	}
@@ -42,7 +42,7 @@ func GetLatestAnnouncement(ctx *gin.Context){
 	var dto dto.LastAnnouncement
 	
 	if err :=global.DB.Last(&latestAnnouncement).Error;err != nil {
-		global.Logger.Errorf("%v",err.Error())
+		global.Logger.Error(err.Error())
 		ctx.JSON(http.StatusInternalServerError,gin.H{"message":"something was wrong"})
 		return
 	}

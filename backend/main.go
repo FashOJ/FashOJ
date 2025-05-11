@@ -7,7 +7,7 @@ import (
 	"FashOJ_Backend/utils"
 )
 
-func main(){
+func main() {
 	config.InitConfig()
 	utils.InitLogger()
 
@@ -15,10 +15,11 @@ func main(){
 	utils.AutoMigrate()
 
 	defer global.Logger.Sync()
-	global.Logger.Info("InitConfig and Logger")	
-	
+	global.Logger.Info("InitConfig and Logger")
+
 	utils.SetJwtKey()
 
-	r:=router.SetupRouter()
-	r.Run(":"+config.FashOJConfig.FashOJApp.Port)
+	// 使用适配器
+	r := router.SetupRouter()
+	r.Run(":" + config.FashOJConfig.FashOJApp.Port)
 }

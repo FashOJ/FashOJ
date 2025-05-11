@@ -21,7 +21,7 @@ func ChangePermission(ctx *gin.Context) {
 
 	// Bind the request body to the UserPatchPermission struct.
 	if err := ctx.ShouldBindJSON(&UserPatchPermission); err != nil {
-		global.Logger.Error(err)
+		global.Logger.Error(err.Error())
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err,
 		})
@@ -54,7 +54,7 @@ func ChangePermission(ctx *gin.Context) {
 			ctx.JSON(http.StatusInternalServerError, gin.H{
 				"message": "wrong",
 			})
-			global.Logger.Errorln(err.Error())
+			global.Logger.Error(err.Error())
 			return
 		}
 

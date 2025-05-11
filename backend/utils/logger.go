@@ -14,11 +14,14 @@ package utils
 import (
 	"FashOJ_Backend/config"
 	"FashOJ_Backend/global"
-	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
+	"fmt"
+
 	"os"
 	"path"
 	"time"
+
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
 // InitLogger 初始化全局日志记录器。
@@ -29,7 +32,7 @@ func InitLogger() {
 	writeSyncer := getLogWriter()
 	encoder := getEncoder()
 	core := zapcore.NewCore(encoder, writeSyncer, zap.DebugLevel)
-	global.Logger = zap.New(core).Sugar()
+	global.Logger = zap.New(core)
 	global.Logger.Info("Init Logger")
 }
 
@@ -46,13 +49,41 @@ func getEncoder() zapcore.Encoder {
 // getLogWriter 返回一个写入同步器，用于将日志写入文件。
 // 该函数根据当前时间生成日志文件名，并打开或创建该文件。
 // 它以追加模式打开文件，并返回一个写入同步器，该同步器可以将日志条目写入文件。
-func getLogWriter() zapcore.WriteSyncer {
-	timeStr := time.Now().Format("2006-01-02 15:04:05")
 
-	file, _ := os.OpenFile(
-		path.Join(config.FashOJConfig.FashOJApp.LogPath, timeStr),
-		os.O_APPEND|os.O_CREATE|os.O_WRONLY,
-		0644,
-	)
-	return zapcore.AddSync(file)
+type writer struct {
+	file *os.File
+}
+
+func newWriter() ( *writer){
+	w := new(writer)
+	w.file = nil
+	return w 
+}
+
+func (w *writer) Write(p []byte) (n int, err error) {
+	fmt.Println(time.Now())
+	timeStr := time.Now().Format("2006-01-02")
+
+	if w.file == nil || timeStr != w.file.Name() {
+		if w.file != nil {
+			w.file.Close()
+		}
+		w.file, err = os.OpenFile(
+			path.Join(config.FashOJConfig.FashOJApp.LogPath, timeStr),
+			os.O_APPEND|os.O_CREATE|os.O_WRONLY,
+			0644,
+		)
+		if err != nil {
+			return 0, err
+		}
+	}
+
+	return w.file.Write(p)
+}
+
+func getLogWriter() zapcore.WriteSyncer {
+
+	logwriter := newWriter()
+
+	return zapcore.AddSync(logwriter)
 }

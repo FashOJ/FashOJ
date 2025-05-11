@@ -36,6 +36,7 @@ const login = () => {
             if (data.message === 'success') {
                 user.username = username.value
                 user.token = data.token
+                user.isLogin = true
                 toast.success('登录成功')
                 router.push({ name: 'homeView' })
             } else {

@@ -4,7 +4,6 @@ import (
 	"FashOJ_Backend/global"
 	"FashOJ_Backend/models"
 	"FashOJ_Backend/utils"
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -45,13 +44,16 @@ func Login(ctx *gin.Context) {
 	// Generate the token
 	token, err := utils.GenJwt(foundUser.Username)
 	if err != nil {
-		global.Logger.Error(err)
+		global.Logger.Error(err.Error())
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"message": "server error",
 		})
 	}
 
 	// Return the token
+
+	global.Logger.Sugar().Infof("user %s login",foundUser.Username)
+		
 	ctx.JSON(http.StatusOK, gin.H{
 		"message": "success",
 		"token":   token,
@@ -73,11 +75,11 @@ func Register(ctx *gin.Context) {
 	}
 
 	var findUser models.User
-	if err := global.DB.Where("username = ?", NewUserRequest.Username).First(&findUser).Error; err != nil {
-		fmt.Println("RUN")
+	if err := global.DB.
+		Where("username = ?", NewUserRequest.Username).
+		First(&findUser).Error; err != nil {
 		global.Logger.Error(err.Error())
 	} else {
-		fmt.Println(findUser.Username)
 		ctx.JSON(http.StatusOK, gin.H{
 			"message": "用户名重复",
 		})
@@ -87,17 +89,18 @@ func Register(ctx *gin.Context) {
 	// Hash the password
 	hashedPwd, err := utils.HashPwd(NewUserRequest.Password)
 	if err != nil {
-		global.Logger.Error(err)
+		global.Logger.Error(err.Error())
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"message": "server error",
 		})
+		return
 	}
 
 	// Generate the token and return it to the user
 	NewUserRequest.Password = hashedPwd
 	token, err := utils.GenJwt(NewUserRequest.Username)
 	if err != nil {
-		global.Logger.Error(err)
+		global.Logger.Error(err.Error())
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"message": "server error",
 		})
@@ -109,7 +112,7 @@ func Register(ctx *gin.Context) {
 
 	// Create the user into the database
 	if err := global.DB.Create(&NewUserRequest).Error; err != nil {
-		global.Logger.Error(err)
+		global.Logger.Error(err.Error())
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"message": "server error",
 		})

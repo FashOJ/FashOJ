@@ -1,0 +1,2 @@
+2025-05-11T11:16:04.162+0800	INFO	user zine login
+2025-05-11T11:16:04.165+0800	INFO	/api/auth/login	{"status": 200, "method": "POST", "path": "/api/auth/login", "query": "", "ip": "127.0.0.1", "user-agent": "Apifox/1.0.0 (https://apifox.com)", "latency": 0.229656621, "time": "2025-05-11T03:16:04Z"}

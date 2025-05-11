@@ -22,4 +22,4 @@ const BcryptCost = 12
 // SystemTempFolder is the path to the system temporary folder
 var SystemTempFolder = os.TempDir()
 
-var Logger *zap.SugaredLogger
+var Logger *zap.Logger
