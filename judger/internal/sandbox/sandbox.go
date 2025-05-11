@@ -57,8 +57,8 @@ func (s *SandboxConfig) Run() (*SandboxResult, error) {
 	defer tempError.Close()
 
 	cmd := exec.Command(s.ExecPath)
-
-	cg, err := NewCgroup("test")
+	cgroupName := fmt.Sprintf("fashoj_sandbox_%d", os.Getpid())
+	cg, err := NewCgroup(cgroupName)
 
 	if err != nil {
 		return nil, fmt.Errorf("create cgroup failed: %v", err)
