@@ -6,6 +6,7 @@ import (
 	"FashOJ_Backend/models"
 	"FashOJ_Backend/permission"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -38,16 +39,67 @@ func CreateAnnouncement(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"message": "success"})
 }
 
-// func GetAnnouncement(ctx *gin.Context) {
-// 	page,err := strconv.Atoi(ctx.DefaultQuery("page","1"))
-// 	if err != nil {
-// 		ctx.JSON(http.StatusBadRequest,gin.H{"message":"bad query"})
-// 	}
-// 	size,err := strconv.Atoi(ctx.DefaultQuery("page","10"))
-// 	if err != nil {
-// 		ctx.JSON(http.StatusBadRequest,gin.H{"message":"bad query"})
-// 	}
-// }
+func GetAnnouncement(ctx *gin.Context) {
+	page, err := strconv.Atoi(ctx.DefaultQuery("page", "1"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": "bad query"})
+		return
+	}
+	size, err := strconv.Atoi(ctx.DefaultQuery("size", "10"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": "bad query"})
+		return
+	}
+
+	var announcements []models.Announcement
+	var total int64
+
+	// 查询总数
+	if err := global.DB.Model(&models.Announcement{}).Count(&total).Error; err != nil {
+		global.Logger.Sugar().Errorf("%v", err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"message": "server error"})
+		return
+	}
+
+	// 计算总页数
+	totalPages := int(total) / size
+	if int(total)%size != 0 {
+		totalPages++
+	}
+
+	// 查询公告及关联的用户信息
+	if err := global.DB.Preload("User").
+		Offset((page - 1) * size).
+		Limit(size).
+		Order("created_at desc").
+		Find(&announcements).Error; err != nil {
+		global.Logger.Sugar().Errorf("%v", err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"message": "server error"})
+		return
+	}
+
+	// 转换为DTO
+	announcementDTOs := make([]dto.Announcement, 0, len(announcements))
+	for _, a := range announcements {
+		announcementDTOs = append(announcementDTOs, dto.Announcement{
+			Author:   a.User.Username,
+			Avatar:   a.User.Avatar,
+			AuthorId: int(a.UserID),
+			Id: int(a.ID),
+			Title:    a.Title,
+			Abstract: a.Abstract,
+		})
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"message": "success",
+		"data": &dto.AnnouncementPage{
+			Pages:         totalPages,
+			Size:          size,
+			Announcements: announcementDTOs,
+		},
+	})
+}
 
 func GetLatestAnnouncement(ctx *gin.Context) {
 	var latestAnnouncement models.Announcement

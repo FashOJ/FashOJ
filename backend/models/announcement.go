@@ -8,4 +8,5 @@ type Announcement struct {
 	Abstract string
 	Content string	 `binding:"required"`
 	UserID uint
+	User User
 }

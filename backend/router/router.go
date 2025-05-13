@@ -51,6 +51,7 @@ func SetupRouter() *gin.Engine {
 	announcement.Use(middlewares.AuthMiddleware())
 	{
 		announcement.POST("", controllers.CreateAnnouncement)
+		announcement.GET("",controllers.GetAnnouncement)
 	}
 	return fashOJBackendRouter
 }
