@@ -4,7 +4,6 @@ backend/file
 .idea
 node_modules
 package-lock.json
-package.json
 backend/Log
 .vscode
 judger/testTEMP/execTemp/*
