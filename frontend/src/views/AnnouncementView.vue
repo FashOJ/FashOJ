@@ -61,21 +61,6 @@ onMounted(() => {
             <p class="abstract">{{ item.abstract }}</p>
             <hr />
         </div>
-        <!-- <div class="announcement">
-            <div class="head">
-                <h1 class="title">testTitle</h1>
-                <div class="user">
-                    <img
-                        src="https://avatars.githubusercontent.com/u/46991452?v=4"
-                        alt=""
-                        class="avatar"
-                    />
-                    <p class="username">zine</p>
-                </div>
-            </div>
-
-            <p class="text">testContent</p>
-        </div> -->
     </div>
 </template>
 
