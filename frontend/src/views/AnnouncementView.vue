@@ -1,26 +1,67 @@
 <script setup lang="ts">
 import NavBar from '@/components/NavBar.vue'
+import { useUserStore } from '@/stores/user'
+import axios from 'axios'
+import { onMounted, reactive } from 'vue'
+
+interface AnnouncementPage {
+    announcements: Announcement[]
+    pages: number
+    size: number
+}
+
+interface Announcement {
+    abstract: string
+    author: string
+    author_id: number
+    avatar: string
+    id: number
+    title: string
+}
+const announcementPage: AnnouncementPage = reactive({
+    pages: 1,
+    size: 10,
+    announcements: [],
+})
+
+const userStore = useUserStore()
+
+const fetchAnnouncements = () => {
+    axios
+        .get('http://localhost:3000/api/announcement?page=1&size=10', {
+            headers: {
+                Authorization: userStore.token,
+            },
+        })
+        .then((res) => {
+            if (res.data.message === 'success') {
+                announcementPage.pages = res.data.data.pages
+                announcementPage.size = res.data.data.size
+                announcementPage.announcements = res.data.data.announcements
+            }
+        })
+}
+
+onMounted(() => {
+    fetchAnnouncements()
+})
 </script>
 
 <template>
     <NavBar></NavBar>
     <div class="container">
-        <div class="announcement">
+        <div class="announcement" v-for="item in announcementPage.announcements">
             <div class="head">
-                <h1 class="title">testTitle</h1>
+                <h1 class="title">{{ item.title }}</h1>
                 <div class="user">
-                    <img
-                        src="https://avatars.githubusercontent.com/u/46991452?v=4"
-                        alt=""
-                        class="avatar"
-                    />
-                    <p class="username">zine</p>
+                    <img :src="item.avatar" alt="" class="avatar" />
+                    <p class="username">{{ item.author }}</p>
                 </div>
             </div>
-            <p class="text">testContent</p>
+            <p class="abstract">{{ item.abstract }}</p>
+            <hr />
         </div>
-        <hr />
-        <div class="announcement">
+        <!-- <div class="announcement">
             <div class="head">
                 <h1 class="title">testTitle</h1>
                 <div class="user">
@@ -34,7 +75,7 @@ import NavBar from '@/components/NavBar.vue'
             </div>
 
             <p class="text">testContent</p>
-        </div>
+        </div> -->
     </div>
 </template>
 
@@ -79,11 +120,11 @@ hr {
 }
 
 .title {
-    margin:0;
+    margin: 0;
     font-size: 25px;
 }
 
-.text {
+.abstract {
     width: 100%;
     max-width: 100%;
     overflow-wrap: break-word;
