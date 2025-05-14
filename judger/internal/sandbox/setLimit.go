@@ -191,16 +191,16 @@ func (c *cgroup) CheckOom() (bool, error) {
 		}
 
 	} else {
-		cntByte,err := os.ReadFile(path.Join(cgroupRoot,"memory",c.cgroupName,"memory.failcnt"))	
+		cntByte, err := os.ReadFile(path.Join(cgroupRoot, "memory", c.cgroupName, "memory.failcnt"))	
 		if err != nil {
-			return false,fmt.Errorf("read oom event failed: %v",err)
+			return false, fmt.Errorf("read oom event failed: %v", err)
 		}
 
 		// 逆天末尾换行符
 		fuckendl := strings.TrimSpace(string(cntByte))
-		cnt ,err:= strconv.Atoi(string(fuckendl))
+		cnt, err := strconv.Atoi(string(fuckendl))
 		if err != nil {
-			return false,fmt.Errorf("read oom event failed: %v",err)
+			return false, fmt.Errorf("read oom event failed: %v", err)
 		}
 		if cnt > 0 {
 			res = true
