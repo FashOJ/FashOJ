@@ -25,7 +25,18 @@ int syscalls_blacklist[] = {
     SCMP_SYS(bind),
     SCMP_SYS(accept),
     SCMP_SYS(clone),
-    };
+    
+    // 网络相关系统调用
+    SCMP_SYS(listen),
+    SCMP_SYS(sendto),
+    SCMP_SYS(recvfrom),
+    
+    // 文件系统相关系统调用
+    SCMP_SYS(mkdir),
+    SCMP_SYS(rmdir),
+    SCMP_SYS(mount),
+    SCMP_SYS(umount2),
+};
 typedef int (*main_t)(int, char **, char **);
 
 #ifndef __unbounded
