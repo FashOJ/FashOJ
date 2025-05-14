@@ -1,7 +1,6 @@
 package router
 
 import (
-	"FashOJ_Backend/controllers"
 	"FashOJ_Backend/global"
 	"FashOJ_Backend/middlewares"
 
@@ -15,43 +14,27 @@ import (
 func SetupRouter() *gin.Engine {
 	fashOJBackendRouter := gin.Default()
 
+	// global middlewares
 	fashOJBackendRouter.Use(ginzap.Ginzap(global.Logger, time.RFC3339, true))
 	fashOJBackendRouter.Use(ginzap.RecoveryWithZap(global.Logger, true))
-
 	fashOJBackendRouter.Use(middlewares.Cors())
 
-	noAuth := fashOJBackendRouter.Group("")
+	api := fashOJBackendRouter.Group("/api")
 	{
-		noAuth.GET("/api/announcement/latest", controllers.GetLatestAnnouncement)
+		// 需要认证的路由
+		setupNoAuthRoutes(api)
+		setupAuthRouter(api)
+
+		// 需要认证的路由组
+		authorized := api.Group("")
+		authorized.Use(middlewares.AuthMiddleware())
+		{
+			setupUserRoutes(authorized)
+			setupNormalProblemRoutes(authorized)
+			setupNormalSubmitRoutes(authorized)
+			setupAnnouncementRoutes(authorized)
+		}
 	}
 
-	auth := fashOJBackendRouter.Group("/api/auth")
-	{
-		auth.POST("/login", controllers.Login)
-		auth.POST("/register", controllers.Register)
-	}
-
-	user := fashOJBackendRouter.Group("/api/user")
-	user.Use(middlewares.AuthMiddleware())
-	{
-		user.POST("/changepermission", controllers.ChangePermission)
-	}
-
-	normalProblem := fashOJBackendRouter.Group("/api/problem")
-	normalProblem.Use(middlewares.AuthMiddleware())
-	{
-		normalProblem.POST("", controllers.CreateProblem)
-		normalProblem.POST("/:pid/upload", controllers.UploadTestcase)
-	}
-
-	normalSubmit := fashOJBackendRouter.Group("/api/submit")
-	normalSubmit.Use(middlewares.AuthMiddleware())
-
-	announcement := fashOJBackendRouter.Group("/api/announcement")
-	announcement.Use(middlewares.AuthMiddleware())
-	{
-		announcement.POST("", controllers.CreateAnnouncement)
-		announcement.GET("",controllers.GetAnnouncement)
-	}
 	return fashOJBackendRouter
 }
