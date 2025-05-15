@@ -2,9 +2,9 @@ package main
 
 import (
 	"FashOJ_Backend/config"
-	"FashOJ_Backend/global"
-	"FashOJ_Backend/router"
-	"FashOJ_Backend/utils"
+	"FashOJ_Backend/internal/global"
+	"FashOJ_Backend/internal/router"
+	"FashOJ_Backend/pkg/utils"
 )
 
 func main() {

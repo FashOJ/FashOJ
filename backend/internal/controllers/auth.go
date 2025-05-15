@@ -1,9 +1,9 @@
 package controllers
 
 import (
-	"FashOJ_Backend/global"
-	"FashOJ_Backend/models"
-	"FashOJ_Backend/utils"
+	"FashOJ_Backend/internal/global"
+	"FashOJ_Backend/internal/models"
+	"FashOJ_Backend/pkg/utils"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -52,8 +52,8 @@ func Login(ctx *gin.Context) {
 
 	// Return the token
 
-	global.Logger.Sugar().Infof("user %s login",foundUser.Username)
-		
+	global.Logger.Sugar().Infof("user %s login", foundUser.Username)
+
 	ctx.JSON(http.StatusOK, gin.H{
 		"message": "success",
 		"token":   token,

@@ -1,8 +1,8 @@
 package utils
 
 import (
-	"FashOJ_Backend/global"
-	"FashOJ_Backend/models"
+	"FashOJ_Backend/internal/global"
+	"FashOJ_Backend/internal/models"
 	"crypto/rand"
 	"errors"
 	"os"
@@ -93,7 +93,7 @@ func SetJwtKey() {
 	}
 }
 
-//Auto Migrate all models
+// Auto Migrate all models
 func AutoMigrate() {
 	if err := global.DB.AutoMigrate(
 		&models.User{},

@@ -13,7 +13,7 @@ package utils
 
 import (
 	"FashOJ_Backend/config"
-	"FashOJ_Backend/global"
+	"FashOJ_Backend/internal/global"
 	"fmt"
 
 	"os"
@@ -54,10 +54,10 @@ type writer struct {
 	file *os.File
 }
 
-func newWriter() ( *writer){
+func newWriter() *writer {
 	w := new(writer)
 	w.file = nil
-	return w 
+	return w
 }
 
 func (w *writer) Write(p []byte) (n int, err error) {

@@ -1,8 +1,8 @@
 package router
 
 import (
-	"FashOJ_Backend/global"
-	"FashOJ_Backend/middlewares"
+	"FashOJ_Backend/internal/global"
+	"FashOJ_Backend/internal/middlewares"
 
 	"github.com/gin-gonic/gin"
 
