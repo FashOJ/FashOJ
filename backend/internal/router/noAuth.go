@@ -1,7 +1,7 @@
 package router
 
 import (
-	"FashOJ_Backend/controllers"
+	"FashOJ_Backend/internal/controllers"
 
 	"github.com/gin-gonic/gin"
 )

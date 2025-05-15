@@ -1,7 +1,7 @@
 package config
 
 import (
-	"FashOJ_Backend/global"
+	"FashOJ_Backend/internal/global"
 	"fmt"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"

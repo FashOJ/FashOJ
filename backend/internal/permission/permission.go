@@ -1,7 +1,7 @@
 package permission
 
 import (
-	"FashOJ_Backend/models"
+	"FashOJ_Backend/internal/models"
 )
 
 const (

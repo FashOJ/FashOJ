@@ -1,9 +1,9 @@
 package middlewares
 
 import (
-	"FashOJ_Backend/global"
-	"FashOJ_Backend/models"
-	"FashOJ_Backend/utils"
+	"FashOJ_Backend/internal/global"
+	"FashOJ_Backend/internal/models"
+	"FashOJ_Backend/pkg/utils"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )

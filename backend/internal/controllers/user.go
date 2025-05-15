@@ -1,9 +1,9 @@
 package controllers
 
 import (
-	"FashOJ_Backend/global"
-	"FashOJ_Backend/models"
-	"FashOJ_Backend/permission"
+	"FashOJ_Backend/internal/global"
+	"FashOJ_Backend/internal/models"
+	"FashOJ_Backend/internal/permission"
 	"net/http"
 
 	"github.com/gin-gonic/gin"

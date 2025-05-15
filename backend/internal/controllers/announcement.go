@@ -1,10 +1,10 @@
 package controllers
 
 import (
-	"FashOJ_Backend/dto"
-	"FashOJ_Backend/global"
-	"FashOJ_Backend/models"
-	"FashOJ_Backend/permission"
+	"FashOJ_Backend/internal/dto"
+	"FashOJ_Backend/internal/global"
+	"FashOJ_Backend/internal/models"
+	"FashOJ_Backend/internal/permission"
 	"net/http"
 	"strconv"
 	"strings"
@@ -85,7 +85,7 @@ func GetAnnouncement(ctx *gin.Context) {
 			Author:   a.User.Username,
 			Avatar:   a.User.Avatar,
 			AuthorId: int(a.UserID),
-			Id: int(a.ID),
+			Id:       int(a.ID),
 			Title:    a.Title,
 			Abstract: a.Abstract,
 		})
