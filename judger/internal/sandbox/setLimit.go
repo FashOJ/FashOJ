@@ -191,16 +191,16 @@ func (c *cgroup) CheckOom() (bool, error) {
 		}
 
 	} else {
-		cntByte,err := os.ReadFile(path.Join(cgroupRoot,"memory",c.cgroupName,"memory.failcnt"))	
+		cntByte, err := os.ReadFile(path.Join(cgroupRoot, "memory", c.cgroupName, "memory.failcnt"))	
 		if err != nil {
-			return false,fmt.Errorf("read oom event failed: %v",err)
+			return false, fmt.Errorf("read oom event failed: %v", err)
 		}
 
 		// 逆天末尾换行符
 		fuckendl := strings.TrimSpace(string(cntByte))
-		cnt ,err:= strconv.Atoi(string(fuckendl))
+		cnt, err := strconv.Atoi(string(fuckendl))
 		if err != nil {
-			return false,fmt.Errorf("read oom event failed: %v",err)
+			return false, fmt.Errorf("read oom event failed: %v", err)
 		}
 		if cnt > 0 {
 			res = true
@@ -210,4 +210,29 @@ func (c *cgroup) CheckOom() (bool, error) {
 	}
 
 	return res,nil
+}
+
+// 获取内存使用量（KB）
+func (c *cgroup) GetMemoryUsage() (int, error) {
+	var memFile string
+	
+	if c.v2 {
+		memFile = path.Join(cgroupRoot, c.cgroupName, "memory.current")
+	} else {
+		memFile = path.Join(cgroupRoot, "memory", c.cgroupName, "memory.max_usage_in_bytes")
+	}
+	
+	memBytes, err := os.ReadFile(memFile)
+	if err != nil {
+		return 0, fmt.Errorf("读取内存使用失败: %v", err)
+	}
+	
+	memStr := strings.TrimSpace(string(memBytes))
+	memUsage, err := strconv.Atoi(memStr)
+	if err != nil {
+		return 0, fmt.Errorf("解析内存使用失败: %v", err)
+	}
+	
+	// 转换为 KB
+	return memUsage / 1024, nil
 }

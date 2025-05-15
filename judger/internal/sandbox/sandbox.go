@@ -127,6 +127,16 @@ func (s *SandboxConfig) Run() (*SandboxResult, error) {
 		result.ExitCode = 0
 	}
 	result.Time = int(time.Since(startTime).Milliseconds())
+
+	// 添加内存使用统计
+	memUsage, err := cg.GetMemoryUsage()
+	if err != nil {
+		// 如果获取失败，不要中断程序，只记录错误
+		fmt.Fprintf(os.Stderr, "获取内存使用失败: %v\n", err)
+	} else {
+		result.Memory = memUsage
+	}
+
 	oom, err := cg.CheckOom()
 	if err != nil {
 		return nil, fmt.Errorf("get memory usage failed: %v", err)
