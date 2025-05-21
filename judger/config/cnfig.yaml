@@ -1,0 +1,9 @@
+FashOJApp: 
+  Port: 3000
+  LogPath: log
+DataBase: 
+  UserName: root
+  password: 123456
+  Host: 127.0.0.1:3306
+  MaxIdleConns: 10
+  MaxOpenConns: 100

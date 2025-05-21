@@ -4,5 +4,8 @@ import "gorm.io/gorm"
 
 type Problem struct {
 	gorm.Model
-	TestCases []TestCase
+	ProblemId uint
+	TimeLimit uint
+	MemoryLimit uint
+	TestCases []Testcase `gorm:"foreignKey:ProblemID"`
 }
