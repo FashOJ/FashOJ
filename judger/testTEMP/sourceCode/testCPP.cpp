@@ -17,10 +17,30 @@
 // }
 
 #include <bits/stdc++.h>
+
 using namespace std;
-int main() {
-    int a,b;
-    cin>>a>>b;
-    cout<<a+b<<endl;
+void solve()
+{
+    int n;
+    cin >> n;
+    int ans = n;
+    for (int i = 0; i < n; i++)
+    {
+        int x;
+        cin >> x;
+        if (x == 1)
+            ans--;
+    }
+    cout << ans << "\n";
+}
+int main()
+{
+    ios::sync_with_stdio(false), cin.tie(0), cout.tie(0);
+    int _ = 1;
+    // std::cin >> _;
+    while (_--)
+    {
+        solve();
+    }
     return 0;
 }
