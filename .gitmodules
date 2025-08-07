@@ -1,0 +1,9 @@
+[submodule "frontend"]
+	path = frontend
+	url = https://github.com/FashOJ/FashFE.git
+[submodule "backend"]
+	path = backend
+	url = https://github.com/FashOJ/FashOnlineJudgeBE.git
+[submodule "judger"]
+	path = judger
+	url = https://github.com/FashOJ/Judger.git
